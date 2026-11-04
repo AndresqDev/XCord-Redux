@@ -1,0 +1,819 @@
+C A xcord/ConfigUpdater
+C B xcord/AntiBotManager
+C C xcord/CheckType
+C D xcord/SilentException
+C E xcord/ConnectionStats
+C F xcord/SimilarityCache
+C F$a xcord/SimilarityCache$Match
+C G xcord/BlackBoxApi
+C H xcord/IPHubApi
+C I xcord/ProxyCheckProvider
+C J xcord/ProxyCheckApi
+C K xcord/Blacklist
+C L xcord/CountryBlocklist
+C M xcord/FileBlacklist
+C N xcord/IPSetBlacklist
+C O xcord/MemoryBlacklist
+C P xcord/IpIntBlacklist
+C Q xcord/DosFilterIPSet
+C R xcord/ExploitMonitor
+C S xcord/BotHandler
+C T xcord/LegacyBotHandler
+C U xcord/BotCheckHandler
+C U$1 xcord/BotCheckHandler$1
+C V xcord/SocketCheck
+C W xcord/EpollSocketCheck
+C X xcord/NioSocketCheck
+C Y xcord/SocketCheckDispatcher
+C Z xcord/MemoryCommand
+C Z$1 xcord/MemoryCommand$1
+C Z$a xcord/MemoryCommand$MemoryStatsTask
+C a xcord/Inject
+C aa xcord/SubCommand
+C ab xcord/TimedEventsCommand
+C ab$a xcord/TimedEventsCommand$TimingEventBus
+C ac xcord/SubCommandDispatcher
+C ad xcord/WhitelistListCommand
+C ae xcord/WhitelistRemoveCommand
+C af xcord/WhitelistAddCommand
+C ag xcord/CompressionDecoder
+C ah xcord/CompressionEncoder
+C ai xcord/MergedCompressionEncoder
+C aj xcord/PersistentMap
+C ak xcord/ProxyCheckJob
+C al xcord/DelayedJob
+C am xcord/AsyncJob
+C an xcord/PacketRegistry
+C ao xcord/Log4jFilter
+C ap xcord/VarInts
+C aq xcord/NameValidator
+C ar xcord/DnsResolver
+C as xcord/ProcessUtils
+C b xcord/Named
+C c xcord/Provider
+C d xcord/Qualifier
+C e xcord/Singleton
+C f xcord/AsyncJobService
+C g xcord/XCord
+C h xcord/MessageTemplate
+C i xcord/PacketTransformer
+C j xcord/CountryBlockService
+C k xcord/DosFilterBlacklist
+C l xcord/LogFilter
+C m xcord/GlobalBlacklist
+C m$a xcord/GlobalBlacklist$DownloadTask
+C me/minebuilders/proxyfork/antiproxy/a me/minebuilders/proxyfork/antiproxy/AntiProxyManager
+C me/minebuilders/proxyfork/antiproxy/b me/minebuilders/proxyfork/antiproxy/ProxyResult
+C me/minebuilders/proxyfork/antiproxy/c me/minebuilders/proxyfork/antiproxy/ProxyCheckResult
+C n xcord/IPSetWriter
+C o xcord/AntiDdosFrameDecoder
+C p xcord/OptimizedReadTimeoutHandler
+C p$a xcord/OptimizedReadTimeoutHandler$TimeoutTask
+C q xcord/ReloadableService
+C r xcord/BlacklistManager
+C s xcord/SpoofedServerConnection
+C s$1 xcord/SpoofedServerConnection$1
+C t xcord/StringInterner
+C u xcord/TcpDnsResolver
+C u$1 xcord/TcpDnsResolver$1
+C u$1$1 xcord/TcpDnsResolver$1$1
+C u$1$2 xcord/TcpDnsResolver$1$2
+C v xcord/TickableService
+C w xcord/VarIntFrameDecoder
+C x xcord/VarIntByteProcessor
+C x$a xcord/VarIntByteProcessor$State
+C y xcord/XCordConfig
+C z xcord/Messages
+F A a Ljava/util/Map; replacements
+F A a [Ljava/lang/String; header
+F B a I tickCounter
+F B a LF; similarNameCache
+F B a Ljava/util/Map; connectionStats
+F B a Ljava/util/concurrent/ConcurrentHashMap; whitelistRecords
+F B a Ljava/util/concurrent/atomic/AtomicBoolean; attackActive
+F B a Ljava/util/concurrent/atomic/AtomicInteger; connectionCounter
+F B b I purgeCounter
+F B c I lastConnectionCount
+F C a LC; a_C
+F C a [LC; VALUES
+F C d LC; VERIFY
+F C e LC; SPEEDY_LOGIN
+F C f LC; SPEEDY_CONNECTION
+F C j LC; LOGIN_TIMEOUT
+F C k LC; PACKET_TIMEOUT
+F E a I loginCounter
+F E a J firstSeen
+F E a Ljava/lang/String; ip
+F E a Z whitelisted
+F E a [I violations
+F E b I connectionCounter
+F E b J lastSeen
+F E b Z flagged
+F E c I actionValue
+F E c J lastAction
+F F a I index
+F F a Z ignoreCase
+F F a [Ljava/lang/String; cache
+F F$a a D score
+F F$a a Ljava/lang/String; value
+F N a Ljava/lang/String; tableName
+F N a Ljava/util/concurrent/ExecutorService; executor
+F N a Ln; writer
+F N a Z failed
+F N b Ljava/lang/String; hashType
+F N c Ljava/lang/String; iptablesMatch
+F O a Ljava/lang/Object; value
+F O a Ljava/util/Map; entries
+F P a Lgnu/trove/set/TIntSet; addresses
+F R a I largestPacket
+F R a Ljava/lang/String; playerName
+F R b I largestBytes
+F R c I largestPackets
+F R d I bytesThisTick
+F R e I packetsThisTick
+F R f I payloadBytesThisTick
+F R g I lastTick
+F S a J challengeTime
+F S b Lnet/md_5/bungee/UserConnection; user
+F S f Z sentRawData
+F T a J challengeTime
+F T f Z sentKeepAlive
+F U a D lastY
+F U a I checkId
+F U a J lastPacketTime
+F U a Lan; DBP_REGISTRY
+F U a Lgnu/trove/map/TIntObjectMap; LOGIN_DIMENSIONS
+F U a Ljava/lang/Runnable; callback
+F U a Lnet/md_5/bungee/UserConnection; user
+F U a Lnet/md_5/bungee/connection/InitialHandler; initialHandler
+F U a Z verified
+F U b D lastDeltaY
+F U b I protocolVersion
+F U b J challengeSentTime
+F U b Lan; CBP_REGISTRY
+F U b Z sentPayload
+F U c I keepAliveId
+F U c Z sentInitials
+F U d I ping
+F U d Z awaitingPosition
+F U e I verifyAttempts
+F U e Z receivedKeepAlive
+F U f I fakeLobbyY
+F U f Z sentFakeLobby
+F U g I fallCount
+F U g Z advancedCheckEnabled
+F U h I expectedKeepAliveId
+F U h Z challengeSent
+F U i I challengeAttempts
+F U i Z challengeAnswered
+F U j I invalidKeepAlives
+F U j Z positionChecked
+F Y a LW; epollChecker
+F Y a LX; nioChecker
+F Z a Ljava/util/Timer; timer
+F Z$a a J lastGcCount
+F Z$a b J lastGcTime
+F aa a I minArgs
+F aa a Ljava/lang/String; usage
+F aa b Ljava/lang/String; permission
+F ab$a a Lnet/md_5/bungee/event/EventBus; delegate
+F ac a Ljava/util/Map; subCommands
+F ad a Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager; whitelist
+F ae a Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager; whitelist
+F af a Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager; whitelist
+F ag a I threshold
+F ag a Lnet/md_5/bungee/jni/zlib/BungeeZlib; zlib
+F ah a I threshold
+F ah a Lnet/md_5/bungee/jni/zlib/BungeeZlib; zlib
+F ai a I threshold
+F ai a Lnet/md_5/bungee/jni/zlib/BungeeZlib; zlib
+F aj a Ljava/io/File; file
+F aj a Ljava/util/Map; map
+F ak a Ljava/lang/String; name
+F ak a Lnet/md_5/bungee/api/Callback; callback
+F ak b Ljava/lang/String; ip
+F al a J executeAt
+F al a Ljava/lang/Runnable; task
+F an a Lio/netty/util/collection/IntObjectMap; packets
+F ap a Lnet/md_5/bungee/protocol/MutedCorruptedFrameException; BAD_VARINT
+F ap a Z packetDecodeLogging
+F ap a [I VARINT_SIZES
+F ap a [Lap; VALUES
+F ar a Lio/netty/resolver/dns/DnsAddressResolverGroup; RESOLVER_GROUP
+F ar a Lio/netty/resolver/dns/DnsNameResolverBuilder; BUILDER
+F f a Ljava/util/Queue; queue
+F f a Ljava/util/concurrent/ExecutorService; executor
+F g a I tick
+F g a LB; antiBotManager
+F g a Lf; asyncJobService
+F g a Lg; instance
+F g a Ljava/util/List; tickableServices
+F g a Lk; dosFilterBlacklist
+F g a Lm; globalBlacklist
+F g a Lme/minebuilders/proxyfork/antiproxy/a; antiProxyManager
+F g a Lr; blacklistManager
+F g a Ly; config
+F g a Lz; messages
+F g a Z logFilterEnabled
+F g b Ljava/util/List; reloadableServices
+F h a Ljava/lang/String; json
+F h a [Lnet/md_5/bungee/api/chat/BaseComponent; components
+F h b Ljava/lang/String; legacyText
+F j a LL; blocklist
+F k a Z active
+F m a I nextUpdate
+F m a LM; backend
+F m a Ljava/lang/String; name
+F m b Ljava/lang/String; blacklistName
+F m$a a Ljava/lang/String; url
+F m$a a Lm; a_m
+F m$a b Ljava/lang/String; name
+F me/minebuilders/proxyfork/antiproxy/a a I purgeInterval
+F me/minebuilders/proxyfork/antiproxy/a a Laj; cache
+F me/minebuilders/proxyfork/antiproxy/a a Ljava/util/List; providers
+F me/minebuilders/proxyfork/antiproxy/a a Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager; whitelist
+F me/minebuilders/proxyfork/antiproxy/a b I saveInterval
+F me/minebuilders/proxyfork/antiproxy/b a Lme/minebuilders/proxyfork/antiproxy/b; WHITELISTED
+F me/minebuilders/proxyfork/antiproxy/b a [Lme/minebuilders/proxyfork/antiproxy/b; VALUES
+F me/minebuilders/proxyfork/antiproxy/b b Lme/minebuilders/proxyfork/antiproxy/b; UNKNOWN
+F me/minebuilders/proxyfork/antiproxy/b c Lme/minebuilders/proxyfork/antiproxy/b; DETECTED
+F me/minebuilders/proxyfork/antiproxy/b d Lme/minebuilders/proxyfork/antiproxy/b; ERROR
+F me/minebuilders/proxyfork/antiproxy/c a J timestamp
+F me/minebuilders/proxyfork/antiproxy/c a Ljava/lang/String; countryCode
+F me/minebuilders/proxyfork/antiproxy/c a Lme/minebuilders/proxyfork/antiproxy/b; result
+F me/minebuilders/proxyfork/antiproxy/c b Ljava/lang/String; asn
+F n a I intervalMs
+F n a Ljava/io/File; tempFile
+F n a Ljava/lang/String; tableName
+F n a Ljava/util/Queue; queue
+F n a Ljava/util/concurrent/atomic/AtomicInteger; pending
+F n b Ljava/lang/String; addPrefix
+F n c Ljava/lang/String; ipsetName
+F o a I packetCount
+F o a Lnet/md_5/bungee/protocol/OverflowPacketException; TOO_MUCH_DATA
+F o a Z firstPacket
+F o b I bytesThisSecond
+F o c I lastTick
+F o d I maxBytesPerSecond
+F o e I maxPacketsPerSecond
+F p a B state
+F p a J timeoutMillis
+F p a Lio/netty/util/concurrent/Future; timeoutFuture
+F p a Z reading
+F p b J lastReadMillis
+F p b Z timedOut
+F p$a a Lio/netty/channel/ChannelHandlerContext; context
+F p$a a Lp; a_p
+F r a I tick
+F r a LK; blacklist
+F s a Lnet/md_5/bungee/BungeeServerInfo; SPOOFED_LOBBY
+F t a Ljava/util/Map; CACHE
+F u$1 a Ljava/util/concurrent/CompletableFuture; future
+F u$1 a Lu; a_u
+F w a I invalidFrames
+F w a Lnet/md_5/bungee/protocol/MutedCorruptedFrameException; a_MutedCorruptedFrameException
+F x a I value
+F x a Lx$a; state
+F x b I bytesRead
+F x$a a Lx$a; VALUE
+F x$a a [Lx$a; VALUES
+F x$a b Lx$a; INCOMPLETE
+F x$a c Lx$a; TOO_LONG
+F x$a d Lx$a; ZERO
+F y A I antiBotBootDelaySeconds
+F y A Z securityManagerIpsetBlacklisting
+F y B I antiBotUnstableCheckLatencyThreshold
+F y B Z loginAntiVpnInitialConnectionCheckenabled
+F y C I antiBotUnstableCheckBlacklistViolations
+F y C Z loginAntiVpnInitialConnectionCheckcacheOnly
+F y D I antiBotStrangeNameRandomNumberCount
+F y D Z loginAntiVpnInitialConnectionCheckonlyDuringBotAttack
+F y E I antiBotStrangeNameRandomCapitalCount
+F y E Z loginAntiVpnBlacklistOnDetection
+F y F I antiBotStrangeNameBlacklistViolations
+F y F Z loginAntiVpnOnlyBlacklistOnDetectionDuringAttack
+F y G I loginTickLengthMs
+F y G Z antiBotTimeoutFloodEnabled
+F y H I loginThreadPoolSize
+F y H Z antiBotNamePatternEnabled
+F y I I loginAntiVpnSaveInterval
+F y I Z antiBotNamePatternSameLengthOnly
+F y J I loginAntiVpnPurgeInterval
+F y J Z antiBotAntiHangEnabled
+F y K I antiBotVerifyV2BlockPotentialProxiesproxyCheck1Leniency
+F y K Z antiBotAntiHangOnlyDuringBotAttack
+F y L I antiBotVerifyV2BlockPotentialProxiesproxyCheck2MaxAttempts
+F y L Z antiDdosDuringLoginEnabled
+F y M I antiBotVerifyV2BlockPotentialProxiesproxyCheck2Leniency
+F y M Z antiDdosDuringGameplayEnabled
+F y N I antiBotVerifyV2MaxPing
+F y N Z antiDdosBlacklist
+F y O I antiBotVerifyV2MaxCheckTime
+F y O Z antiBotPrintConnectionStats
+F y P I generalNewConnectionSpeedThreshold
+F y P Z generalOnlyBlacklistPacketErrorsDuringAttack
+F y Q I generalMinimumNameLength
+F y Q Z sharedGlobalBlacklistEnabled
+F y R I antiBotTimeoutFloodBlacklistViolations
+F y R Z sharedGlobalBlacklistUseIpset
+F y S I antiBotNamePatternMinimumNameLength
+F y S Z ipSpooferSpoofListedUserIps
+F y T I antiBotNamePatternNameHistoryLength
+F y T Z ipSpooferLogOnSpoof
+F y U I antiBotNamePatternBlacklistViolations
+F y U Z performanceOptimizationsUseMergedEncodingPipeline
+F y V I antiBotAntiHangForceTimeoutTime
+F y V Z performanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi
+F y W I antiDdosDuringLoginMaxBytesPerSecond
+F y W Z performanceOptimizationsDontCopyPackets
+F y X I antiDdosDuringLoginInitialBufferLimitBytes
+F y X Z antiBotVerifyV2AdvancedLobbyCheckEnabled
+F y Y I antiDdosDuringLoginMaxPacketsPerSecond
+F y Y Z antiBotVerifyV2AdvancedLobbyCheckTestCollision
+F y Z I antiDdosDuringGameplayMaxBytesPerSecond
+F y Z Z fixesFix17KickWhen18Joins
+F y a D antiBotNamePatternMinimumMatchPercent
+F y a I antiBotDisableChecksTime
+F y a J loginAntiVpnPurgeAge
+F y a Ljava/lang/String; loginAntiVpnProxycheckerioApiKey
+F y a Ljava/util/List; blockedIsoCodesRaw
+F y a Ljava/util/Set; ignoredAddresses
+F y a Lnet/md_5/bungee/conf/YamlConfig; xcordYml
+F y a Lnet/md_5/bungee/protocol/DefinedPacket; verifyingPacket
+F y a Z antiBotPrePEnabled
+F y a [Ljava/lang/String; blockedIsoCodes
+F y a [Lnet/md_5/bungee/api/chat/BaseComponent; successfulVerifyKickMessage
+F y aa I antiDdosDuringGameplayMaxPacketsPerSecond
+F y aa Z antiBotPassthroughVerifyThenReconnectEnabled
+F y ab I antiDdosImprobableBufferMaxViolations
+F y ab Z antiBotNullPingAndPingSpamCachePingMotd
+F y ac I sharedGlobalBlacklistUpdateDatabaseIntervalSeconds
+F y ac Z antiBotNullPingAndPingSpamOnlyCacheDuringBotAttack
+F y ad I antiBotVerifyV2AdvancedLobbyCheckMaxAttempts
+F y ad Z antiBotNullPingAndPingSpamDisableLegacyPings
+F y ae I antiBotVerifyV2MaxViolationsForBlacklist
+F y ae Z loginAntiVpnBlackboxApiEnabled
+F y af I compatibilityPayloadChannelLimit
+F y af Z securityManagerAutoWhitelistHaproxyAddresses
+F y ag I antiDdosDosIpFilterUpdateDatabaseIntervalSeconds
+F y ag Z performanceOptimizationsUseTcpFastOpenOnServers
+F y ah I antiDdosDosIpFilterEnableAtThisConnectionsPerSecond
+F y ah Z performanceOptimizationsUseTcpFastConnectOnClients
+F y ai I antiBotLinuxOnlySocketCheckRequiredConnectionRate
+F y ai Z compatibilityAppearAsWaterfall
+F y aj Z generalAlwaysCheckAllowedNameCharacters
+F y ak Z kernelLevelIpsetCountryBlockerEnabled
+F y al Z antiDdosDosIpFilterEnabled
+F y am Z antiDdosDosIpFilterUseIpset
+F y an Z generalDynamicallyResolveServerAddresses
+F y ao Z performanceOptimizationsUseOptimizedTimeoutHandler
+F y ap Z compatibilityAlwaysFireQuitEvent
+F y aq Z antiBotLinuxOnlySocketCheckEnabled
+F y ar Z antiBotLinuxOnlySocketCheckEnableDuringBotAttackOnly
+F y as Z antiBotLinuxOnlySocketCheckDetectSuspiciousMss
+F y at Z antiBotLinuxOnlySocketCheckDetectProxiesAndVps
+F y au Z antiBotLinuxOnlySocketCheckDetectSuspicious
+F y av Z antiBotLinuxOnlySocketCheckDetectNonWindows
+F y aw Z antiBotLinuxOnlySocketCheckLowerThresholdsOfBotChecksInsteadOfBlacklist
+F y b I antiBotChatForceDelay
+F y b J antiBotTimeoutFloodTimeBetweenTimeouts
+F y b Ljava/lang/String; proxyCheckArguments
+F y b Ljava/util/Set; blockedAsns
+F y b Lnet/md_5/bungee/protocol/DefinedPacket; verifiedPacket
+F y b Z antiBotLinuxCheck
+F y c I generalBaseTick
+F y c J antiBotNullPingAndPingSpamCacheMilliseconds
+F y c Ljava/lang/String; loginAntiVpnIphubApiKey
+F y c Ljava/util/Set; blockedCountries
+F y c Z antiBotChatCheck
+F y d I antiBotWhitelistSurviveTime
+F y d Ljava/lang/String; ipSpoofer7222928185
+F y d Ljava/util/Set; filteredLogMessages
+F y d Z antiBotDnsCheck
+F y e I antiBotWhitelistPurgeInterval
+F y e Ljava/lang/String; generalGetLicenseFromDiscord
+F y e Ljava/util/Set; spoofedUsers
+F y e Z antiBotDnsCheckIsStrict
+F y f I antiBotTimeToWhitelist
+F y f Ljava/lang/String; generalXCord
+F y f Z antiBotDnsCheckIsStrict1
+F y g I antiBotTimeGroupingTick
+F y g Z securityManagerLogBlacklist
+F y h I antiBotAntiBotDeactivateDelay
+F y h Z exploitMonitorEnabled
+F y i I antiBotAntiBotActivateConnections
+F y i Z debugDebugMode
+F y j I antiBotIpTrackingTimeout
+F y j Z antiBotUnstableCheckEnabled
+F y k I antiBotSpeedyLoginMaxLoginsPerTick
+F y k Z antiBotUnstableCheckDelayKickForReason
+F y l I antiBotSpeedyLoginBlacklistViolations
+F y l Z antiBotStrangeNameEnabled
+F y m I antiBotSpeedyConnectionMaxConnectionsPerTick
+F y m Z securityManagerIgnoreAddressesEnabled
+F y n I antiBotSpeedyConnectionBlacklistViolations
+F y n Z debugOutputDownstreamErrors
+F y o I antiBotPrePDelay
+F y o Z loginAntiVpnEnabled
+F y p I antiBotPrePBlacklistViolations
+F y p Z loginAntiVpnProxycheckerioApiEnabled
+F y q I antiBotLoginCheckTimeoutTime
+F y q Z loginAntiVpnIphubApiEnabled
+F y r I antiBotLoginCheckStrangeConnectionDelay
+F y r Z loginAntiVpnLogNonCacheDetection
+F y s I securityManagerBlacklistResetTime
+F y s Z antiBotVerifyV2Enabled
+F y t I exploitMonitorMaxPacketBytes
+F y t Z antiBotVerifyV2BlockPotentialProxiesproxyCheck1Enabled
+F y u I exploitMonitorPacketBytesPerTickLimit
+F y u Z antiBotVerifyV2BlockPotentialProxiesproxyCheck2Enabled
+F y v I exploitMonitorPacketsPerTickLimit
+F y v Z antiBotVerifyV2IgnoreGeyser
+F y w I exploitMonitorPayloadBytesPerTickLimit
+F y w Z antiBotVerifyV2VerifyPackets
+F y x I generalInitialTimeout
+F y x Z antiBotVerifyV2VerifyBrand
+F y y I generalKickTimeout
+F y y Z antiBotVerifyV2Ignore116PlusVersions
+F y z I generalCompressionStrength
+F y z Z logFilterEnabled
+F z a Lh; slowLogin
+F z b Lh; failedConnection
+F z c Lh; linuxCheckFail
+F z d Lh; speedJoinFail
+F z e Lh; shortName
+F z f Lh; illegalName
+F z g Lh; vpn
+F z h Lh; highPing
+F z i Lh; proxyLogicVerifyV2
+M A a (Ljava/io/File;)V update
+M A a (Ljava/lang/String;[Ljava/lang/String;)LA; addReplacement
+M B a ()I incrementConnections
+M B a ()LF; getSimilarNameCache
+M B a ()V reload
+M B a ()Z isAttackActive
+M B a (I)V tick
+M B a (LC;Lnet/md_5/bungee/netty/ChannelWrapper;IILjava/lang/String;)Z checkViolation
+M B a (Ljava/lang/String;)LE; getStats
+M B a (Ljava/lang/String;)Z isWhitelisted
+M B a (Ljava/lang/String;Ljava/lang/String;)V whitelist
+M B a (Ljava/lang/String;Ljava/lang/String;)Z isWhitelisted
+M B b ()I getConnectionCount
+M B c ()I getLastConnectionCount
+M E a ()I getLastActionInt
+M E a ()J getLastAction
+M E a (I)V setLastAction
+M E a (LC;)I getViolations
+M E a (LC;I)I addViolations
+M E a (Ljava/net/InetAddress;)Z checkSpeedyLogin
+M E a (Z)V setWhitelisted
+M E b ()J getFirstSeen
+M E b (Ljava/net/InetAddress;)Z checkSpeedyConnection
+M E b (Z)V setFlagged
+M E c ()J getLastSeen
+M F a (Ljava/lang/String;)LF$a; findClosest
+M F a (Ljava/lang/String;Ljava/lang/String;)D similarity
+M F a (Ljava/lang/String;Ljava/lang/String;)I levenshtein
+M F$a a ()D getScore
+M F$a a ()Ljava/lang/String; getValue
+M G a (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c; check
+M H a (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c; check
+M I a (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c; check
+M J a (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c; check
+M K a ()I purge
+M K a ()Z isEmpty
+M K a (Ljava/lang/String;)Z add
+M K b (Ljava/lang/String;)Z contains
+M L a ([Ljava/lang/String;)V blockCountries
+M L b ([Ljava/lang/String;)V blockCountriesAsync
+M M a (Ljava/io/File;Ljava/lang/String;)V load
+M N a ()I purge
+M N a ()V destroy
+M N a (Ljava/io/File;)V restore
+M N a (Ljava/io/File;Ljava/lang/String;)V load
+M N a (Ljava/lang/ProcessBuilder;I)Ljava/lang/String; exec
+M N a (Ljava/lang/String;)Ljava/lang/String; exec
+M N a (Ljava/lang/String;)Z add
+M N a (Ljava/lang/String;I)Ljava/lang/String; exec
+M N a ([Ljava/lang/String;I)Ljava/lang/String; exec
+M N b ()V setup
+M O a ()I purge
+M O a ()Z isEmpty
+M O a (Ljava/lang/String;)Z add
+M O b (Ljava/lang/String;)Z contains
+M P a ()I purge
+M P a ()Z isEmpty
+M P a (Ljava/io/File;Ljava/lang/String;)V load
+M P a (Ljava/lang/String;)Z add
+M P b (Ljava/lang/String;)Z contains
+M Q b ()V setup
+M Q c ()V enable
+M Q d ()V disable
+M S a ()V completeVerification
+M S a ()Z isVerified
+M T a ()V completeVerification
+M U a ()I getPing
+M U a ()Ljava/lang/Runnable; getCallback
+M U a ()Ljava/lang/String; getDebugInfo
+M U a ()V completeVerification
+M U a ()Z isVerified
+M U a (I)V handlePing
+M U a (Lio/netty/channel/Channel;Lio/netty/buffer/ByteBuf;)V writePacket
+M U a (Z)V setAdvancedCheck
+M U b ()V finishVerification
+M U b (I)V failVerification
+M U c ()V runCallback
+M U d ()V sendChallenge
+M V a (Lio/netty/channel/Channel;)I getPing
+M V a (Lio/netty/channel/Channel;)V close
+M V a (Lio/netty/channel/Channel;)Z check
+M V b (Lio/netty/channel/Channel;)Z isSuspiciousMss
+M W a (Lio/netty/channel/Channel;)I getPing
+M W a (Lio/netty/channel/Channel;)V close
+M W a (Lio/netty/channel/Channel;)Z check
+M W a (Lio/netty/channel/epoll/EpollSocketChannel;)I getPing
+M W a (Lio/netty/channel/epoll/EpollSocketChannel;)V close
+M W a (Lio/netty/channel/epoll/EpollSocketChannel;)Z check
+M W b (Lio/netty/channel/Channel;)Z isSuspiciousMss
+M W b (Lio/netty/channel/epoll/EpollSocketChannel;)Z isSuspiciousMss
+M X a (Lio/netty/channel/Channel;)I getPing
+M X a (Lio/netty/channel/Channel;)V close
+M X a (Lio/netty/channel/Channel;)Z check
+M X a (Lio/netty/channel/socket/nio/NioSocketChannel;)I getPing
+M X a (Lio/netty/channel/socket/nio/NioSocketChannel;)V close
+M X a (Lio/netty/channel/socket/nio/NioSocketChannel;)Z check
+M X b (Lio/netty/channel/Channel;)Z isSuspiciousMss
+M X b (Lio/netty/channel/socket/nio/NioSocketChannel;)Z isSuspiciousMss
+M Y a (Lio/netty/channel/Channel;)I getPing
+M Y a (Lio/netty/channel/Channel;)V close
+M Y a (Lio/netty/channel/Channel;)Z check
+M Y b (Lio/netty/channel/Channel;)Z isSuspiciousMss
+M aa a ()I getMinArgs
+M aa a ()Ljava/lang/String; getUsage
+M aa a (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V execute
+M aa b ()Ljava/lang/String; getPermission
+M ab$a a (Ljava/lang/Object;Lnet/md_5/bungee/event/EventExceptionHandler;)V postSync
+M ac a (Ljava/lang/String;Laa;)V registerSubCommand
+M ac a (Lnet/md_5/bungee/api/CommandSender;)V sendHelp
+M ad a (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V execute
+M ae a (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V execute
+M af a (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V execute
+M ag a (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V decode
+M ah a (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V encode
+M ai a (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V encode
+M aj a ()Ljava/util/Map; getMap
+M aj a ()V save
+M aj a (Ljava/io/File;)V setFile
+M aj a (Ljava/lang/Object;)Ljava/lang/Object; get
+M aj a (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; put
+M al a ()Z isReady
+M am a ()Z isReady
+M an a (I)Lnet/md_5/bungee/protocol/DefinedPacket; get
+M an a (ILnet/md_5/bungee/protocol/DefinedPacket;)V put
+M an a (Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;II[B)V register
+M ap a (I)I varIntSize
+M ap a (Lio/netty/buffer/ByteBuf;)I readVarInt
+M ap a (Lio/netty/buffer/ByteBuf;I)V writeVarInt
+M ap b (Lio/netty/buffer/ByteBuf;)I readVarIntRaw
+M ap b (Lio/netty/buffer/ByteBuf;I)V writeVarInt3
+M ap c (Lio/netty/buffer/ByteBuf;I)V writeVarIntFull
+M aq a (C)Z isAllowedChar
+M aq a (CZ)Z isAllowedChar
+M aq a (Ljava/lang/String;Z)Z isValidName
+M ar a ()Lio/netty/resolver/dns/DnsAddressResolverGroup; getResolverGroup
+M ar a (Ljava/lang/String;)Ljava/net/InetAddress; resolve
+M as a (ILjava/lang/Process;Ljava/lang/ProcessBuilder;)V scheduleKill
+M as a (Ljava/lang/ProcessBuilder;I)Ljava/lang/String; execute
+M as a (Ljava/lang/String;)I ipToInt
+M as a (Ljava/lang/String;)Z isValidIp
+M f a (Lam;)V submit
+M g a ()I getTick
+M g a ()LB; getAntiBotManager
+M g a ()Lf; getAsyncJobService
+M g a ()Lg; getInstance
+M g a ()Lk; getDosFilterBlacklist
+M g a ()Lm; getGlobalBlacklist
+M g a ()Lme/minebuilders/proxyfork/antiproxy/a; getAntiProxyManager
+M g a ()Lr; getBlacklistManager
+M g a ()Ly; getConfig
+M g a ()Lz; getMessages
+M g a ()V reload
+M g a ()Z isLogFilterEnabled
+M g a (Ljava/lang/String;)V log
+M g a (Ljava/lang/String;[Ljava/lang/Object;)V log
+M g a (Ly;)V setConfig
+M g a (Lz;)V setMessages
+M g a (Z)V setLogFilterEnabled
+M h a ()Ljava/lang/String; getJson
+M h a ()[Lnet/md_5/bungee/api/chat/BaseComponent; getComponents
+M h b ()Ljava/lang/String; getLegacyText
+M i a (Lio/netty/buffer/ByteBuf;Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;II)Lio/netty/buffer/ByteBuf; transform
+M i a (Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;II[B)V register
+M j a ()V reload
+M k a ()V reload
+M k a ()Z isActive
+M k a (I)V tick
+M l a ()V reload
+M m a ()V reload
+M m a (I)V tick
+M m a (Ljava/lang/String;)Z isBlacklisted
+M me/minebuilders/proxyfork/antiproxy/a a ()Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager; getWhitelist
+M me/minebuilders/proxyfork/antiproxy/a a ()V reload
+M me/minebuilders/proxyfork/antiproxy/a a (I)V tick
+M me/minebuilders/proxyfork/antiproxy/a a (Ljava/lang/String;Ljava/lang/String;Z)Lme/minebuilders/proxyfork/antiproxy/b; check
+M me/minebuilders/proxyfork/antiproxy/a a (Ljava/util/Map$Entry;)Z isExpired
+M me/minebuilders/proxyfork/antiproxy/a b ()V purgeCache
+M me/minebuilders/proxyfork/antiproxy/a c ()V saveCache
+M me/minebuilders/proxyfork/antiproxy/c a ()J getTimestamp
+M me/minebuilders/proxyfork/antiproxy/c a ()Ljava/lang/String; getCountryCode
+M me/minebuilders/proxyfork/antiproxy/c a ()Lme/minebuilders/proxyfork/antiproxy/b; getResult
+M me/minebuilders/proxyfork/antiproxy/c a (Ljava/lang/String;)V setCountryCode
+M me/minebuilders/proxyfork/antiproxy/c a (Lme/minebuilders/proxyfork/antiproxy/b;)V setResult
+M me/minebuilders/proxyfork/antiproxy/c b ()Ljava/lang/String; getAsn
+M me/minebuilders/proxyfork/antiproxy/c b (Ljava/lang/String;)V setAsn
+M o a (Z)Lo; setFirstPacketCheck
+M p a (Lp;)J a_long
+M p a (Lp;)Z a_bool
+M p b (Lp;)J b_long
+M p b (Lp;)Z b_bool
+M q a ()V reload
+M r a ()V reload
+M r a (I)V tick
+M r a (Ljava/lang/String;)Z isBlacklisted
+M r a (Ljava/net/InetAddress;)V forceClose
+M r a (Ljava/net/InetAddress;)Z isBlacklisted
+M r a (Ljava/net/InetAddress;Lh;)V disconnect
+M r a (Ljava/net/InetAddress;Ljava/lang/String;)Z isBlacklisted
+M r a (Ljava/net/SocketAddress;Ljava/lang/String;)Z isBlacklisted
+M r b ()V resetTick
+M r c ()V clear
+M s getInfo ()Lnet/md_5/bungee/BungeeServerInfo; getInfo_BungeeServerInfo
+M s getInfo ()Lnet/md_5/bungee/api/config/ServerInfo; getInfo_ServerInfo
+M t a (Ljava/lang/String;)Ljava/lang/String; intern
+M u$1 a (Lio/netty/channel/socket/SocketChannel;)V initChannel
+M u$1$1 a (Lio/netty/channel/ChannelHandlerContext;Lio/netty/handler/codec/dns/DefaultDnsResponse;)V channelRead0
+M v a (I)V tick
+M x a ()I getValue
+M x a ()Lx$a; getState
+M x b ()I getBytesRead
+M y A ()I getLoginTickLengthMs
+M y A ()Z getPerformanceOptimizationsUseMergedEncodingPipeline
+M y B ()I getAntiBotUnstableCheckBlacklistViolations
+M y B ()Z getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi
+M y C ()I getAntiBotStrangeNameBlacklistViolations
+M y C ()Z getAntiBotVerifyV2Ignore116PlusVersions
+M y D ()I getAntiBotUnstableCheckLatencyThreshold
+M y D ()Z getIpSpooferLogOnSpoof
+M y E ()I getAntiBotStrangeNameRandomNumberCount
+M y E ()Z getIpSpooferSpoofListedUserIps
+M y F ()I getAntiBotStrangeNameRandomCapitalCount
+M y F ()Z getSharedGlobalBlacklistEnabled
+M y G ()I getGeneralCompressionStrength
+M y G ()Z getSharedGlobalBlacklistUseIpset
+M y H ()I getGeneralKickTimeout
+M y H ()Z getGeneralOnlyBlacklistPacketErrorsDuringAttack
+M y I ()I getGeneralInitialTimeout
+M y I ()Z getAntiBotPrintConnectionStats
+M y J ()I getExploitMonitorMaxPacketBytes
+M y J ()Z getAntiDdosBlacklist
+M y K ()I getExploitMonitorPacketBytesPerTickLimit
+M y K ()Z getAntiDdosDuringLoginEnabled
+M y L ()I getExploitMonitorPacketsPerTickLimit
+M y L ()Z getAntiDdosDuringGameplayEnabled
+M y M ()I getAntiBotIpTrackingTimeout
+M y M ()Z getAntiBotAntiHangEnabled
+M y N ()I getAntiBotDisableChecksTime
+M y N ()Z getAntiBotAntiHangOnlyDuringBotAttack
+M y O ()I getAntiBotChatForceDelay
+M y O ()Z getLoginAntiVpnLogNonCacheDetection
+M y P ()I getGeneralBaseTick
+M y P ()Z getAntiBotNamePatternEnabled
+M y Q ()I getAntiBotWhitelistSurviveTime
+M y Q ()Z getAntiBotVerifyV2BlockPotentialProxiesproxyCheck2Enabled
+M y R ()I getAntiBotWhitelistPurgeInterval
+M y R ()Z getAntiBotNamePatternSameLengthOnly
+M y S ()I getAntiBotTimeToWhitelist
+M y S ()Z getAntiBotTimeoutFloodEnabled
+M y T ()I getAntiBotTimeGroupingTick
+M y T ()Z getLoginAntiVpnInitialConnectionCheckenabled
+M y U ()I getAntiBotAntiBotDeactivateDelay
+M y U ()Z getLoginAntiVpnInitialConnectionCheckcacheOnly
+M y V ()I getAntiBotAntiBotActivateConnections
+M y V ()Z getLoginAntiVpnInitialConnectionCheckonlyDuringBotAttack
+M y W ()I getAntiBotSpeedyLoginMaxLoginsPerTick
+M y W ()Z getLoginAntiVpnBlacklistOnDetection
+M y X ()I getAntiBotSpeedyLoginBlacklistViolations
+M y X ()Z getLoginAntiVpnOnlyBlacklistOnDetectionDuringAttack
+M y Y ()I getAntiBotSpeedyConnectionMaxConnectionsPerTick
+M y Y ()Z getSecurityManagerIpsetBlacklisting
+M y Z ()I getAntiBotSpeedyConnectionBlacklistViolations
+M y Z ()Z getLogFilterEnabled
+M y a ()D getAntiBotNamePatternMinimumMatchPercent
+M y a ()I getAntiBotVerifyV2BlockPotentialProxiesproxyCheck1Leniency
+M y a ()J getAntiBotNullPingAndPingSpamCacheMilliseconds
+M y a ()Ljava/lang/String; getGeneralXCord
+M y a ()Ljava/util/Collection; getBlockedIsoCodesList
+M y a ()Ljava/util/List; getBlockedIsoCodesRaw
+M y a ()Ljava/util/Set; getSpoofedUsers
+M y a ()Lnet/md_5/bungee/protocol/DefinedPacket; getVerifyingPacket
+M y a ()Z getAntiBotVerifyV2BlockPotentialProxiesproxyCheck1Enabled
+M y a ()[Ljava/lang/String; getBlockedIsoCodes
+M y a ()[Lnet/md_5/bungee/api/chat/BaseComponent; getSuccessfulVerifyKickMessage
+M y a (Ljava/lang/String;)Z isIgnoredAddress
+M y a (Ljava/net/InetAddress;)Z isIgnoredAddress
+M y a ([Ljava/lang/String;)Lnet/md_5/bungee/protocol/DefinedPacket; buildChatPacket
+M y aa ()I getAntiBotLoginCheckTimeoutTime
+M y aa ()Z getAntiBotVerifyV2VerifyPackets
+M y ab ()I getAntiBotLoginCheckStrangeConnectionDelay
+M y ab ()Z getAntiBotVerifyV2VerifyBrand
+M y ac ()I getSecurityManagerBlacklistResetTime
+M y ac ()Z getAntiBotVerifyV2Enabled
+M y ad ()I getAntiBotVerifyV2AdvancedLobbyCheckMaxAttempts
+M y ad ()Z getLoginAntiVpnEnabled
+M y ae ()I getAntiDdosDosIpFilterEnableAtThisConnectionsPerSecond
+M y ae ()Z getLoginAntiVpnProxycheckerioApiEnabled
+M y af ()Z getLoginAntiVpnIphubApiEnabled
+M y ag ()Z getDebugOutputDownstreamErrors
+M y ah ()Z getAntiBotUnstableCheckDelayKickForReason
+M y ai ()Z getAntiBotUnstableCheckEnabled
+M y aj ()Z getAntiBotStrangeNameEnabled
+M y ak ()Z getDebugDebugMode
+M y al ()Z getExploitMonitorEnabled
+M y am ()Z getAntiBotDnsCheckIsStrict1
+M y an ()Z getAntiBotLinuxCheck
+M y ao ()Z getAntiBotChatCheck
+M y ap ()Z getAntiBotDnsCheck
+M y aq ()Z getAntiBotDnsCheckIsStrict
+M y ar ()Z getSecurityManagerLogBlacklist
+M y as ()Z getGeneralAlwaysCheckAllowedNameCharacters
+M y at ()Z getAntiBotVerifyV2AdvancedLobbyCheckEnabled
+M y au ()Z getAntiBotVerifyV2AdvancedLobbyCheckTestCollision
+M y b ()I getAntiBotVerifyV2BlockPotentialProxiesproxyCheck2MaxAttempts
+M y b ()J getAntiBotTimeoutFloodTimeBetweenTimeouts
+M y b ()Ljava/lang/String; getGeneralGetLicenseFromDiscord
+M y b ()Ljava/util/Set; getBlockedAsns
+M y b ()Lnet/md_5/bungee/protocol/DefinedPacket; getVerifiedPacket
+M y b ()Z getAntiBotLinuxOnlySocketCheckLowerThresholdsOfBotChecksInsteadOfBlacklist
+M y b (Ljava/lang/String;)Z addIgnoredAddress
+M y c ()I getAntiBotVerifyV2BlockPotentialProxiesproxyCheck2Leniency
+M y c ()J getLoginAntiVpnPurgeAge
+M y c ()Ljava/lang/String; getIpSpoofer7222928185
+M y c ()Ljava/util/Set; getBlockedCountries
+M y c ()Z getAntiBotLinuxOnlySocketCheckEnabled
+M y d ()I getAntiBotLinuxOnlySocketCheckRequiredConnectionRate
+M y d ()Ljava/lang/String; getLoginAntiVpnProxycheckerioApiKey
+M y d ()Z getAntiBotLinuxOnlySocketCheckEnableDuringBotAttackOnly
+M y e ()I getAntiDdosDuringLoginInitialBufferLimitBytes
+M y e ()Ljava/lang/String; getProxyCheckArguments
+M y e ()Z getAntiBotLinuxOnlySocketCheckDetectSuspiciousMss
+M y f ()I getAntiDdosDosIpFilterUpdateDatabaseIntervalSeconds
+M y f ()Ljava/lang/String; getLoginAntiVpnIphubApiKey
+M y f ()Z getAntiBotLinuxOnlySocketCheckDetectProxiesAndVps
+M y g ()I getExploitMonitorPayloadBytesPerTickLimit
+M y g ()Z getAntiBotLinuxOnlySocketCheckDetectSuspicious
+M y h ()I getCompatibilityPayloadChannelLimit
+M y h ()Z getAntiBotLinuxOnlySocketCheckDetectNonWindows
+M y i ()I getAntiDdosImprobableBufferMaxViolations
+M y i ()Z getCompatibilityAlwaysFireQuitEvent
+M y j ()I getSharedGlobalBlacklistUpdateDatabaseIntervalSeconds
+M y j ()Z getPerformanceOptimizationsUseOptimizedTimeoutHandler
+M y k ()I getAntiDdosDuringLoginMaxBytesPerSecond
+M y k ()Z getGeneralDynamicallyResolveServerAddresses
+M y l ()I getAntiDdosDuringLoginMaxPacketsPerSecond
+M y l ()Z getAntiDdosDosIpFilterEnabled
+M y m ()I getAntiDdosDuringGameplayMaxBytesPerSecond
+M y m ()Z getAntiDdosDosIpFilterUseIpset
+M y n ()I getAntiDdosDuringGameplayMaxPacketsPerSecond
+M y n ()Z getKernelLevelIpsetCountryBlockerEnabled
+M y o ()I getAntiBotAntiHangForceTimeoutTime
+M y o ()Z getAntiBotVerifyV2IgnoreGeyser
+M y p ()I getAntiBotNamePatternMinimumNameLength
+M y p ()Z getCompatibilityAppearAsWaterfall
+M y q ()I getAntiBotNamePatternNameHistoryLength
+M y q ()Z getPerformanceOptimizationsUseTcpFastOpenOnServers
+M y r ()I getAntiBotNamePatternBlacklistViolations
+M y r ()Z getPerformanceOptimizationsUseTcpFastConnectOnClients
+M y s ()I getAntiBotTimeoutFloodBlacklistViolations
+M y s ()Z getSecurityManagerAutoWhitelistHaproxyAddresses
+M y t ()I getGeneralMinimumNameLength
+M y t ()Z getLoginAntiVpnBlackboxApiEnabled
+M y u ()I getAntiBotVerifyV2MaxCheckTime
+M y u ()Z getAntiBotNullPingAndPingSpamDisableLegacyPings
+M y v ()I getGeneralNewConnectionSpeedThreshold
+M y v ()Z getAntiBotNullPingAndPingSpamCachePingMotd
+M y w ()I getAntiBotVerifyV2MaxPing
+M y w ()Z getAntiBotNullPingAndPingSpamOnlyCacheDuringBotAttack
+M y x ()I getLoginAntiVpnSaveInterval
+M y x ()Z getAntiBotPassthroughVerifyThenReconnectEnabled
+M y y ()I getLoginAntiVpnPurgeInterval
+M y y ()Z getFixesFix17KickWhen18Joins
+M y z ()I getLoginThreadPoolSize
+M y z ()Z getPerformanceOptimizationsDontCopyPackets
+M z a ()Lh; getProxyLogicVerifyV2
+M z b ()Lh; getHighPing
+M z c ()Lh; getVpn
+M z d ()Lh; getSlowLogin
+M z e ()Lh; getFailedConnection
+M z f ()Lh; getLinuxCheckFail
+M z g ()Lh; getSpeedJoinFail
+M z h ()Lh; getShortName

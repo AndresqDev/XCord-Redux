@@ -1,0 +1,17 @@
+package org.apache.logging.log4j.core.impl;
+
+import java.util.List;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.message.Message;
+
+public interface LogEventFactory extends LocationAwareLogEventFactory {
+   LogEvent createEvent(String var1, Marker var2, String var3, Level var4, Message var5, List<Property> var6, Throwable var7);
+
+   @Override
+   default LogEvent createEvent(String var1, Marker var2, String var3, StackTraceElement var4, Level var5, Message var6, List<Property> var7, Throwable var8) {
+      return this.createEvent(var1, var2, var3, var5, var6, var7, var8);
+   }
+}

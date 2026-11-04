@@ -1,0 +1,2003 @@
+### aa.class
+  protected int a;
+    descriptor: I
+  protected java.lang.String a;
+    descriptor: Ljava/lang/String;
+  protected java.lang.String b;
+    descriptor: Ljava/lang/String;
+  public aa();
+    descriptor: ()V
+  public abstract void a(net.md_5.bungee.api.CommandSender, java.lang.String[]) throws java.lang.IllegalArgumentException;
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V
+  public int a();
+    descriptor: ()I
+  public java.lang.String a();
+    descriptor: ()Ljava/lang/String;
+  public java.lang.String b();
+    descriptor: ()Ljava/lang/String;
+### ab$a.class
+  private final net.md_5.bungee.event.EventBus a;
+    descriptor: Lnet/md_5/bungee/event/EventBus;
+  public ab$a(net.md_5.bungee.event.EventBus);
+    descriptor: (Lnet/md_5/bungee/event/EventBus;)V
+  public <T> void post(T, net.md_5.bungee.event.EventExceptionHandler<T>);
+    descriptor: (Ljava/lang/Object;Lnet/md_5/bungee/event/EventExceptionHandler;)V
+  private <T> void a(T, net.md_5.bungee.event.EventExceptionHandler<T>);
+    descriptor: (Ljava/lang/Object;Lnet/md_5/bungee/event/EventExceptionHandler;)V
+  public void register(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)V
+  public void unregister(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)V
+  private static void a(net.md_5.bungee.api.Stopwatch, long, net.md_5.bungee.api.event.AsyncEvent, net.md_5.bungee.api.Callback, java.lang.Object, java.lang.Throwable);
+    descriptor: (Lnet/md_5/bungee/api/Stopwatch;JLnet/md_5/bungee/api/event/AsyncEvent;Lnet/md_5/bungee/api/Callback;Ljava/lang/Object;Ljava/lang/Throwable;)V
+  static net.md_5.bungee.event.EventBus a(ab$a);
+    descriptor: (Lab$a;)Lnet/md_5/bungee/event/EventBus;
+### ab.class
+  public ab();
+    descriptor: ()V
+  public void execute(net.md_5.bungee.api.CommandSender, java.lang.String[]);
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V
+### ac.class
+  private final java.util.Map<java.lang.String, aa> a;
+    descriptor: Ljava/util/Map;
+  public ac(java.lang.String, java.lang.String, java.lang.String...);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V
+  public void execute(net.md_5.bungee.api.CommandSender, java.lang.String[]);
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V
+  protected void a(net.md_5.bungee.api.CommandSender);
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;)V
+  public void a(java.lang.String, aa);
+    descriptor: (Ljava/lang/String;Laa;)V
+### a.class
+### A.class
+  private final java.lang.String[] a;
+    descriptor: [Ljava/lang/String;
+  private final java.util.Map<java.lang.String, java.lang.String[]> a;
+    descriptor: Ljava/util/Map;
+  public A(java.lang.String...);
+    descriptor: ([Ljava/lang/String;)V
+  public A a(java.lang.String, java.lang.String...);
+    descriptor: (Ljava/lang/String;[Ljava/lang/String;)LA;
+  public void a(java.io.File) throws java.io.IOException;
+    descriptor: (Ljava/io/File;)V
+  private static boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+### ad.class
+  private final me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager a;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;
+  public ad(me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager);
+    descriptor: (Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;)V
+  public void a(net.md_5.bungee.api.CommandSender, java.lang.String[]) throws java.lang.IllegalArgumentException;
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V
+### ae.class
+  private final me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager a;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;
+  public ae(me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager);
+    descriptor: (Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;)V
+  public void a(net.md_5.bungee.api.CommandSender, java.lang.String[]) throws java.lang.IllegalArgumentException;
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V
+### af.class
+  private final me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager a;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;
+  public af(me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager);
+    descriptor: (Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;)V
+  public void a(net.md_5.bungee.api.CommandSender, java.lang.String[]) throws java.lang.IllegalArgumentException;
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V
+### ag.class
+  private final int a;
+    descriptor: I
+  private final net.md_5.bungee.jni.zlib.BungeeZlib a;
+    descriptor: Lnet/md_5/bungee/jni/zlib/BungeeZlib;
+  public ag(int, net.md_5.bungee.jni.zlib.BungeeZlib);
+    descriptor: (ILnet/md_5/bungee/jni/zlib/BungeeZlib;)V
+  protected void a(io.netty.channel.ChannelHandlerContext, io.netty.buffer.ByteBuf, java.util.List<java.lang.Object>) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V
+  public void handlerRemoved(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  protected void decode(io.netty.channel.ChannelHandlerContext, java.lang.Object, java.util.List) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Object;Ljava/util/List;)V
+### ah.class
+  private final int a;
+    descriptor: I
+  private final net.md_5.bungee.jni.zlib.BungeeZlib a;
+    descriptor: Lnet/md_5/bungee/jni/zlib/BungeeZlib;
+  public ah(int, net.md_5.bungee.jni.zlib.BungeeZlib);
+    descriptor: (ILnet/md_5/bungee/jni/zlib/BungeeZlib;)V
+  protected void a(io.netty.channel.ChannelHandlerContext, io.netty.buffer.ByteBuf, io.netty.buffer.ByteBuf) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V
+  protected io.netty.buffer.ByteBuf a(io.netty.channel.ChannelHandlerContext, io.netty.buffer.ByteBuf, boolean) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Z)Lio/netty/buffer/ByteBuf;
+  public void handlerRemoved(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  protected void encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, io.netty.buffer.ByteBuf) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Object;Lio/netty/buffer/ByteBuf;)V
+  protected io.netty.buffer.ByteBuf allocateBuffer(io.netty.channel.ChannelHandlerContext, java.lang.Object, boolean) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Object;Z)Lio/netty/buffer/ByteBuf;
+### ai.class
+  private int a;
+    descriptor: I
+  private final net.md_5.bungee.jni.zlib.BungeeZlib a;
+    descriptor: Lnet/md_5/bungee/jni/zlib/BungeeZlib;
+  public ai(int, net.md_5.bungee.jni.zlib.BungeeZlib);
+    descriptor: (ILnet/md_5/bungee/jni/zlib/BungeeZlib;)V
+  protected void a(io.netty.channel.ChannelHandlerContext, io.netty.buffer.ByteBuf, io.netty.buffer.ByteBuf) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V
+  protected io.netty.buffer.ByteBuf a(io.netty.channel.ChannelHandlerContext, io.netty.buffer.ByteBuf, boolean) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Z)Lio/netty/buffer/ByteBuf;
+  public void handlerRemoved(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  protected void encode(io.netty.channel.ChannelHandlerContext, java.lang.Object, io.netty.buffer.ByteBuf) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Object;Lio/netty/buffer/ByteBuf;)V
+  protected io.netty.buffer.ByteBuf allocateBuffer(io.netty.channel.ChannelHandlerContext, java.lang.Object, boolean) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Object;Z)Lio/netty/buffer/ByteBuf;
+### aj.class
+  protected transient java.io.File a;
+    descriptor: Ljava/io/File;
+  protected final java.util.Map<K, V> a;
+    descriptor: Ljava/util/Map;
+  public aj(java.io.File);
+    descriptor: (Ljava/io/File;)V
+  public aj();
+    descriptor: ()V
+  public void a(java.io.File);
+    descriptor: (Ljava/io/File;)V
+  public java.util.Map<K, V> a();
+    descriptor: ()Ljava/util/Map;
+  public V a(K, V);
+    descriptor: (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  public V a(K);
+    descriptor: (Ljava/lang/Object;)Ljava/lang/Object;
+  public void a() throws java.io.IOException;
+    descriptor: ()V
+### ak.class
+  private final java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private final java.lang.String b;
+    descriptor: Ljava/lang/String;
+  private net.md_5.bungee.api.Callback<me.minebuilders.proxyfork.antiproxy.b> a;
+    descriptor: Lnet/md_5/bungee/api/Callback;
+  public ak(java.lang.String, java.lang.String, net.md_5.bungee.api.Callback<me.minebuilders.proxyfork.antiproxy.b>);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;Lnet/md_5/bungee/api/Callback;)V
+  public void run();
+    descriptor: ()V
+### al.class
+  private long a;
+    descriptor: J
+  private java.lang.Runnable a;
+    descriptor: Ljava/lang/Runnable;
+  public al(long, java.lang.Runnable);
+    descriptor: (JLjava/lang/Runnable;)V
+  public void run();
+    descriptor: ()V
+  public boolean a();
+    descriptor: ()Z
+### am.class
+  public default boolean a();
+    descriptor: ()Z
+### an.class
+  private final io.netty.util.collection.IntObjectMap<T> a;
+    descriptor: Lio/netty/util/collection/IntObjectMap;
+  public an(java.lang.Class<T>, net.md_5.bungee.protocol.ProtocolConstants$Direction, java.lang.String);
+    descriptor: (Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;Ljava/lang/String;)V
+  protected void a(int, T);
+    descriptor: (ILnet/md_5/bungee/protocol/DefinedPacket;)V
+  protected void a(java.lang.Class<T>, net.md_5.bungee.protocol.ProtocolConstants$Direction, int, int, byte[]) throws java.lang.IllegalAccessException, java.lang.InstantiationException;
+    descriptor: (Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;II[B)V
+  public T a(int);
+    descriptor: (I)Lnet/md_5/bungee/protocol/DefinedPacket;
+### ao.class
+  private static final net.md_5.bungee.protocol.BadPacketException a;
+    descriptor: Lnet/md_5/bungee/protocol/BadPacketException;
+  public static java.lang.String a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/String;
+  public static java.lang.String a(net.md_5.bungee.protocol.ProtocolConstants$Direction, java.lang.String);
+    descriptor: (Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;Ljava/lang/String;)Ljava/lang/String;
+  static {};
+    descriptor: ()V
+### ap.class
+  private static final net.md_5.bungee.protocol.MutedCorruptedFrameException a;
+    descriptor: Lnet/md_5/bungee/protocol/MutedCorruptedFrameException;
+  private static final boolean a;
+    descriptor: Z
+  private static final int[] a;
+    descriptor: [I
+  private static final ap[] a;
+    descriptor: [Lap;
+  public static ap[] values();
+    descriptor: ()[Lap;
+  public static ap valueOf(java.lang.String);
+    descriptor: (Ljava/lang/String;)Lap;
+  public static int a(io.netty.buffer.ByteBuf);
+    descriptor: (Lio/netty/buffer/ByteBuf;)I
+  public static int b(io.netty.buffer.ByteBuf);
+    descriptor: (Lio/netty/buffer/ByteBuf;)I
+  public static int a(int);
+    descriptor: (I)I
+  public static void a(io.netty.buffer.ByteBuf, int);
+    descriptor: (Lio/netty/buffer/ByteBuf;I)V
+  private static void c(io.netty.buffer.ByteBuf, int);
+    descriptor: (Lio/netty/buffer/ByteBuf;I)V
+  public static void b(io.netty.buffer.ByteBuf, int);
+    descriptor: (Lio/netty/buffer/ByteBuf;I)V
+  static {};
+    descriptor: ()V
+### aq.class
+  public static boolean a(char);
+    descriptor: (C)Z
+  private static boolean a(char, boolean);
+    descriptor: (CZ)Z
+  public static boolean a(java.lang.String, boolean);
+    descriptor: (Ljava/lang/String;Z)Z
+### ar.class
+  private static final io.netty.resolver.dns.DnsNameResolverBuilder a;
+    descriptor: Lio/netty/resolver/dns/DnsNameResolverBuilder;
+  private static final io.netty.resolver.dns.DnsAddressResolverGroup a;
+    descriptor: Lio/netty/resolver/dns/DnsAddressResolverGroup;
+  public static io.netty.resolver.dns.DnsAddressResolverGroup a();
+    descriptor: ()Lio/netty/resolver/dns/DnsAddressResolverGroup;
+  public static java.net.InetAddress a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/net/InetAddress;
+  static {};
+    descriptor: ()V
+### as.class
+  public static int a(java.lang.String);
+    descriptor: (Ljava/lang/String;)I
+  public static boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public static java.lang.String a(java.lang.ProcessBuilder, int);
+    descriptor: (Ljava/lang/ProcessBuilder;I)Ljava/lang/String;
+  private static void a(int, java.lang.Process, java.lang.ProcessBuilder);
+    descriptor: (ILjava/lang/Process;Ljava/lang/ProcessBuilder;)V
+### b.class
+  public abstract java.lang.String value();
+    descriptor: ()Ljava/lang/String;
+### B.class
+  private final java.util.Map<java.lang.String, E> a;
+    descriptor: Ljava/util/Map;
+  private final java.util.concurrent.ConcurrentHashMap<java.lang.String, java.lang.Long> a;
+    descriptor: Ljava/util/concurrent/ConcurrentHashMap;
+  private final java.util.concurrent.atomic.AtomicInteger a;
+    descriptor: Ljava/util/concurrent/atomic/AtomicInteger;
+  private final java.util.concurrent.atomic.AtomicBoolean a;
+    descriptor: Ljava/util/concurrent/atomic/AtomicBoolean;
+  private int a;
+    descriptor: I
+  private int b;
+    descriptor: I
+  private volatile int c;
+    descriptor: I
+  private F a;
+    descriptor: LF;
+  public B();
+    descriptor: ()V
+  public void a() throws java.lang.Exception;
+    descriptor: ()V
+  public void a(int);
+    descriptor: (I)V
+  public void a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)V
+  public F a();
+    descriptor: ()LF;
+  public boolean a(C, net.md_5.bungee.netty.ChannelWrapper, int, int, java.lang.String);
+    descriptor: (LC;Lnet/md_5/bungee/netty/ChannelWrapper;IILjava/lang/String;)Z
+  public boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public boolean a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Z
+  public E a(java.lang.String);
+    descriptor: (Ljava/lang/String;)LE;
+  public int a();
+    descriptor: ()I
+  public boolean a();
+    descriptor: ()Z
+  public int b();
+    descriptor: ()I
+  public int c();
+    descriptor: ()I
+  private static boolean a(long, y, java.util.Map$Entry);
+    descriptor: (JLy;Ljava/util/Map$Entry;)Z
+### c.class
+  public abstract T get();
+    descriptor: ()Ljava/lang/Object;
+### C.class
+  public static final C a;
+    descriptor: LC;
+  public static final C b;
+    descriptor: LC;
+  public static final C c;
+    descriptor: LC;
+  public static final C d;
+    descriptor: LC;
+  public static final C e;
+    descriptor: LC;
+  public static final C f;
+    descriptor: LC;
+  public static final C g;
+    descriptor: LC;
+  public static final C h;
+    descriptor: LC;
+  public static final C i;
+    descriptor: LC;
+  public static final C j;
+    descriptor: LC;
+  public static final C k;
+    descriptor: LC;
+  public static final C l;
+    descriptor: LC;
+  public static final C m;
+    descriptor: LC;
+  private static final C[] a;
+    descriptor: [LC;
+  public static C[] values();
+    descriptor: ()[LC;
+  public static C valueOf(java.lang.String);
+    descriptor: (Ljava/lang/String;)LC;
+  private C();
+    descriptor: (Ljava/lang/String;I)V
+  static {};
+    descriptor: ()V
+### d.class
+### D.class
+  public D(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public java.lang.Throwable fillInStackTrace();
+    descriptor: ()Ljava/lang/Throwable;
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+### e.class
+### E.class
+  private final java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private long a;
+    descriptor: J
+  private long b;
+    descriptor: J
+  private int a;
+    descriptor: I
+  private int b;
+    descriptor: I
+  private int c;
+    descriptor: I
+  private boolean a;
+    descriptor: Z
+  private long c;
+    descriptor: J
+  private boolean b;
+    descriptor: Z
+  private final int[] a;
+    descriptor: [I
+  public int a(C);
+    descriptor: (LC;)I
+  public int a(C, int);
+    descriptor: (LC;I)I
+  public long a();
+    descriptor: ()J
+  public void a(boolean);
+    descriptor: (Z)V
+  public int a();
+    descriptor: ()I
+  public void a(int);
+    descriptor: (I)V
+  public E(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public long b();
+    descriptor: ()J
+  public long c();
+    descriptor: ()J
+  public boolean a(java.net.InetAddress);
+    descriptor: (Ljava/net/InetAddress;)Z
+  public boolean b(java.net.InetAddress);
+    descriptor: (Ljava/net/InetAddress;)Z
+  public void b(boolean);
+    descriptor: (Z)V
+### F$a.class
+  private double a;
+    descriptor: D
+  private java.lang.String a;
+    descriptor: Ljava/lang/String;
+  public F$a(double, java.lang.String);
+    descriptor: (DLjava/lang/String;)V
+  public double a();
+    descriptor: ()D
+  public java.lang.String a();
+    descriptor: ()Ljava/lang/String;
+  static double a(F$a);
+    descriptor: (LF$a;)D
+### f.class
+  private final java.util.Queue<am> a;
+    descriptor: Ljava/util/Queue;
+  private final java.util.concurrent.ExecutorService a;
+    descriptor: Ljava/util/concurrent/ExecutorService;
+  public f();
+    descriptor: ()V
+  public void run();
+    descriptor: ()V
+  public void a(am);
+    descriptor: (Lam;)V
+### F.class
+  private final boolean a;
+    descriptor: Z
+  private final java.lang.String[] a;
+    descriptor: [Ljava/lang/String;
+  private int a;
+    descriptor: I
+  public F(boolean, int);
+    descriptor: (ZI)V
+  public F$a a(java.lang.String);
+    descriptor: (Ljava/lang/String;)LF$a;
+  private double a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)D
+  private int a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)I
+### g.class
+  private static g a;
+    descriptor: Lg;
+  private static y a;
+    descriptor: Ly;
+  private static r a;
+    descriptor: Lr;
+  private static B a;
+    descriptor: LB;
+  private static z a;
+    descriptor: Lz;
+  private static f a;
+    descriptor: Lf;
+  private static me.minebuilders.proxyfork.antiproxy.a a;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/a;
+  private static m a;
+    descriptor: Lm;
+  private static k a;
+    descriptor: Lk;
+  private static boolean a;
+    descriptor: Z
+  private static volatile int a;
+    descriptor: I
+  private final java.util.List<v> a;
+    descriptor: Ljava/util/List;
+  private final java.util.List<q> b;
+    descriptor: Ljava/util/List;
+  public g();
+    descriptor: ()V
+  public static g a();
+    descriptor: ()Lg;
+  public void a();
+    descriptor: ()V
+  public void run();
+    descriptor: ()V
+  public static m a();
+    descriptor: ()Lm;
+  public static int a();
+    descriptor: ()I
+  public static r a();
+    descriptor: ()Lr;
+  public static B a();
+    descriptor: ()LB;
+  public static y a();
+    descriptor: ()Ly;
+  public static void a(y);
+    descriptor: (Ly;)V
+  public static void a(z);
+    descriptor: (Lz;)V
+  public static boolean a();
+    descriptor: ()Z
+  public static z a();
+    descriptor: ()Lz;
+  public static f a();
+    descriptor: ()Lf;
+  public static me.minebuilders.proxyfork.antiproxy.a a();
+    descriptor: ()Lme/minebuilders/proxyfork/antiproxy/a;
+  public static k a();
+    descriptor: ()Lk;
+  public static void a(boolean);
+    descriptor: (Z)V
+  public static void a(java.lang.String, java.lang.Object...);
+    descriptor: (Ljava/lang/String;[Ljava/lang/Object;)V
+  public static void a(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  static {};
+    descriptor: ()V
+### G.class
+  public G();
+    descriptor: ()V
+  public me.minebuilders.proxyfork.antiproxy.c a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c;
+### h.class
+  private final java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private final net.md_5.bungee.api.chat.BaseComponent[] a;
+    descriptor: [Lnet/md_5/bungee/api/chat/BaseComponent;
+  private final java.lang.String b;
+    descriptor: Ljava/lang/String;
+  public h(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public java.lang.String a();
+    descriptor: ()Ljava/lang/String;
+  public net.md_5.bungee.api.chat.BaseComponent[] a();
+    descriptor: ()[Lnet/md_5/bungee/api/chat/BaseComponent;
+  public java.lang.String b();
+    descriptor: ()Ljava/lang/String;
+### H.class
+  public H();
+    descriptor: ()V
+  public me.minebuilders.proxyfork.antiproxy.c a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c;
+### i.class
+  public i(java.lang.Class<T>, net.md_5.bungee.protocol.ProtocolConstants$Direction, java.lang.String);
+    descriptor: (Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;Ljava/lang/String;)V
+  public io.netty.buffer.ByteBuf a(io.netty.buffer.ByteBuf, java.lang.Class<T>, net.md_5.bungee.protocol.ProtocolConstants$Direction, int, int);
+    descriptor: (Lio/netty/buffer/ByteBuf;Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;II)Lio/netty/buffer/ByteBuf;
+  protected void a(java.lang.Class<T>, net.md_5.bungee.protocol.ProtocolConstants$Direction, int, int, byte[]) throws java.lang.IllegalAccessException, java.lang.InstantiationException;
+    descriptor: (Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;II[B)V
+### I.class
+  public abstract me.minebuilders.proxyfork.antiproxy.c a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c;
+### j.class
+  private L a;
+    descriptor: LL;
+  public j();
+    descriptor: ()V
+  public void a() throws java.lang.Exception;
+    descriptor: ()V
+### J.class
+  public J();
+    descriptor: ()V
+  public me.minebuilders.proxyfork.antiproxy.c a(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/c;
+### k.class
+  private boolean a;
+    descriptor: Z
+  public k();
+    descriptor: ()V
+  public void a(int);
+    descriptor: (I)V
+  public boolean a();
+    descriptor: ()Z
+  public void a() throws java.lang.Exception;
+    descriptor: ()V
+### K.class
+  public abstract boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public abstract boolean b(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public abstract int a();
+    descriptor: ()I
+  public abstract boolean a();
+    descriptor: ()Z
+### l.class
+  public l();
+    descriptor: ()V
+  public boolean isLoggable(java.util.logging.LogRecord);
+    descriptor: (Ljava/util/logging/LogRecord;)Z
+  public void a() throws java.lang.Exception;
+    descriptor: ()V
+### L.class
+  public L(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public void a(java.lang.String...);
+    descriptor: ([Ljava/lang/String;)V
+  private void b(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+### m$a.class
+  private java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private java.lang.String b;
+    descriptor: Ljava/lang/String;
+  final m a;
+    descriptor: Lm;
+  public m$a(m, java.lang.String, java.lang.String);
+    descriptor: (Lm;Ljava/lang/String;Ljava/lang/String;)V
+  public void run();
+    descriptor: ()V
+### m.class
+  protected java.lang.String a;
+    descriptor: Ljava/lang/String;
+  protected M a;
+    descriptor: LM;
+  protected int a;
+    descriptor: I
+  protected java.lang.String b;
+    descriptor: Ljava/lang/String;
+  public m();
+    descriptor: ()V
+  public void a(int);
+    descriptor: (I)V
+  public boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public void a() throws java.lang.Exception;
+    descriptor: ()V
+### M.class
+  public abstract void a(java.io.File, java.lang.String);
+    descriptor: (Ljava/io/File;Ljava/lang/String;)V
+### n.class
+  private final java.io.File a;
+    descriptor: Ljava/io/File;
+  private final java.util.Queue<java.lang.String> a;
+    descriptor: Ljava/util/Queue;
+  private final java.util.concurrent.atomic.AtomicInteger a;
+    descriptor: Ljava/util/concurrent/atomic/AtomicInteger;
+  private final java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private final int a;
+    descriptor: I
+  private final java.lang.String b;
+    descriptor: Ljava/lang/String;
+  private final java.lang.String c;
+    descriptor: Ljava/lang/String;
+  public n(int, java.lang.String, java.lang.String);
+    descriptor: (ILjava/lang/String;Ljava/lang/String;)V
+  public void a(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public void run();
+    descriptor: ()V
+  private void a() throws java.lang.Exception;
+    descriptor: ()V
+### N.class
+  protected final java.util.concurrent.ExecutorService a;
+    descriptor: Ljava/util/concurrent/ExecutorService;
+  protected final java.lang.String a;
+    descriptor: Ljava/lang/String;
+  protected final java.lang.String b;
+    descriptor: Ljava/lang/String;
+  protected boolean a;
+    descriptor: Z
+  private final java.lang.String c;
+    descriptor: Ljava/lang/String;
+  private final n a;
+    descriptor: Ln;
+  public N(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public N(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)V
+  public N(java.lang.String, java.lang.String, java.lang.String, boolean);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V
+  public boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public int a();
+    descriptor: ()I
+  public void a();
+    descriptor: ()V
+  public void a(java.io.File);
+    descriptor: (Ljava/io/File;)V
+  public void a(java.io.File, java.lang.String);
+    descriptor: (Ljava/io/File;Ljava/lang/String;)V
+  protected void b();
+    descriptor: ()V
+  private java.lang.String a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/String;
+  protected java.lang.String a(java.lang.String, int);
+    descriptor: (Ljava/lang/String;I)Ljava/lang/String;
+  private java.lang.String a(java.lang.String[], int);
+    descriptor: ([Ljava/lang/String;I)Ljava/lang/String;
+  private java.lang.String a(java.lang.ProcessBuilder, int);
+    descriptor: (Ljava/lang/ProcessBuilder;I)Ljava/lang/String;
+### o.class
+  private int a;
+    descriptor: I
+  private int b;
+    descriptor: I
+  private int c;
+    descriptor: I
+  private final int d;
+    descriptor: I
+  private final int e;
+    descriptor: I
+  private boolean a;
+    descriptor: Z
+  private static final net.md_5.bungee.protocol.OverflowPacketException a;
+    descriptor: Lnet/md_5/bungee/protocol/OverflowPacketException;
+  public o(int, int);
+    descriptor: (II)V
+  public o a(boolean);
+    descriptor: (Z)Lo;
+  protected void decode(io.netty.channel.ChannelHandlerContext, io.netty.buffer.ByteBuf, java.util.List<java.lang.Object>);
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V
+  static {};
+    descriptor: ()V
+### O.class
+  private final java.lang.Object a;
+    descriptor: Ljava/lang/Object;
+  private final java.util.Map<java.lang.String, java.lang.Object> a;
+    descriptor: Ljava/util/Map;
+  public O();
+    descriptor: ()V
+  public boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public boolean b(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public int a();
+    descriptor: ()I
+  public boolean a();
+    descriptor: ()Z
+### p$a.class
+  private final io.netty.channel.ChannelHandlerContext a;
+    descriptor: Lio/netty/channel/ChannelHandlerContext;
+  final p a;
+    descriptor: Lp;
+    descriptor: (Lp;Lio/netty/channel/ChannelHandlerContext;)V
+  public void run();
+    descriptor: ()V
+### p.class
+  private final long a;
+    descriptor: J
+  private io.netty.util.concurrent.Future<?> a;
+    descriptor: Lio/netty/util/concurrent/Future;
+  private long b;
+    descriptor: J
+  private byte a;
+    descriptor: B
+  private boolean a;
+    descriptor: Z
+  private boolean b;
+    descriptor: Z
+  public p(long, java.util.concurrent.TimeUnit);
+    descriptor: (JLjava/util/concurrent/TimeUnit;)V
+  public void handlerAdded(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  public void handlerRemoved(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  public void channelRegistered(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  public void channelActive(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  public void channelInactive(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  public void channelRead(io.netty.channel.ChannelHandlerContext, java.lang.Object) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Object;)V
+  public void channelReadComplete(io.netty.channel.ChannelHandlerContext) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  private void a(io.netty.channel.ChannelHandlerContext);
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;)V
+  private io.netty.util.concurrent.Future<?> a(io.netty.channel.ChannelHandlerContext, java.lang.Runnable, long, java.util.concurrent.TimeUnit);
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Runnable;JLjava/util/concurrent/TimeUnit;)Lio/netty/util/concurrent/Future;
+  private void a();
+    descriptor: ()V
+  static boolean a(p);
+    descriptor: (Lp;)Z
+  static long a(p);
+    descriptor: (Lp;)J
+  static boolean b(p);
+    descriptor: (Lp;)Z
+  static long b(p);
+    descriptor: (Lp;)J
+  static boolean a(p, boolean);
+    descriptor: (Lp;Z)Z
+  static io.netty.util.concurrent.Future a(p, io.netty.util.concurrent.Future);
+    descriptor: (Lp;Lio/netty/util/concurrent/Future;)Lio/netty/util/concurrent/Future;
+  static io.netty.util.concurrent.Future a(p, io.netty.channel.ChannelHandlerContext, java.lang.Runnable, long, java.util.concurrent.TimeUnit);
+    descriptor: (Lp;Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Runnable;JLjava/util/concurrent/TimeUnit;)Lio/netty/util/concurrent/Future;
+### P.class
+  private gnu.trove.set.TIntSet a;
+    descriptor: Lgnu/trove/set/TIntSet;
+  public P();
+    descriptor: ()V
+  public boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public boolean b(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public void a(java.io.File, java.lang.String);
+    descriptor: (Ljava/io/File;Ljava/lang/String;)V
+  public int a();
+    descriptor: ()I
+  public boolean a();
+    descriptor: ()Z
+### q.class
+  public abstract void a() throws java.lang.Exception;
+    descriptor: ()V
+### Q.class
+  public Q(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public void c();
+    descriptor: ()V
+  public void d();
+    descriptor: ()V
+  protected void b();
+    descriptor: ()V
+  private void e();
+    descriptor: ()V
+  private void f();
+    descriptor: ()V
+### r.class
+  private volatile int a;
+    descriptor: I
+  private K a;
+    descriptor: LK;
+  public r();
+    descriptor: ()V
+  public void a() throws java.lang.Exception;
+    descriptor: ()V
+  public void a(int);
+    descriptor: (I)V
+  public void b();
+    descriptor: ()V
+  public boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public boolean a(java.net.InetAddress, java.lang.String);
+    descriptor: (Ljava/net/InetAddress;Ljava/lang/String;)Z
+  public boolean a(java.net.SocketAddress, java.lang.String);
+    descriptor: (Ljava/net/SocketAddress;Ljava/lang/String;)Z
+  public boolean a(java.net.InetAddress);
+    descriptor: (Ljava/net/InetAddress;)Z
+  public void a(java.net.InetAddress, h);
+    descriptor: (Ljava/net/InetAddress;Lh;)V
+  public void a(java.net.InetAddress);
+    descriptor: (Ljava/net/InetAddress;)V
+  public void c();
+    descriptor: ()V
+### R.class
+  private static int a;
+    descriptor: I
+  private static int b;
+    descriptor: I
+  private static int c;
+    descriptor: I
+  private final java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private int d;
+    descriptor: I
+  private int e;
+    descriptor: I
+  private int f;
+    descriptor: I
+  private int g;
+    descriptor: I
+  public R(net.md_5.bungee.api.ProxyServer, net.md_5.bungee.UserConnection);
+    descriptor: (Lnet/md_5/bungee/api/ProxyServer;Lnet/md_5/bungee/UserConnection;)V
+  public boolean shouldHandle(net.md_5.bungee.protocol.PacketWrapper) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/PacketWrapper;)Z
+  static {};
+    descriptor: ()V
+### s$1.class
+    descriptor: ()V
+  public void setProtocol(net.md_5.bungee.protocol.Protocol);
+    descriptor: (Lnet/md_5/bungee/protocol/Protocol;)V
+  public void setVersion(int);
+    descriptor: (I)V
+  public void addBefore(java.lang.String, java.lang.String, io.netty.channel.ChannelHandler);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;Lio/netty/channel/ChannelHandler;)V
+  public io.netty.channel.Channel getHandle();
+    descriptor: ()Lio/netty/channel/Channel;
+  public void setCompressionThreshold(int);
+    descriptor: (I)V
+  public void write(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)V
+  public void writeBuffered(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)V
+  public void markClosed();
+    descriptor: ()V
+  public void close();
+    descriptor: ()V
+  public void close(java.lang.Object);
+    descriptor: (Ljava/lang/Object;)V
+  public void flush();
+    descriptor: ()V
+  public void forceClose();
+    descriptor: ()V
+  public void delayedClose(net.md_5.bungee.protocol.packet.Kick);
+    descriptor: (Lnet/md_5/bungee/protocol/packet/Kick;)V
+### s.class
+  private static final net.md_5.bungee.BungeeServerInfo a;
+    descriptor: Lnet/md_5/bungee/BungeeServerInfo;
+  public s(net.md_5.bungee.BungeeServerInfo);
+    descriptor: (Lnet/md_5/bungee/BungeeServerInfo;)V
+  public net.md_5.bungee.netty.ChannelWrapper getCh();
+    descriptor: ()Lnet/md_5/bungee/netty/ChannelWrapper;
+  public net.md_5.bungee.BungeeServerInfo getInfo();
+    descriptor: ()Lnet/md_5/bungee/BungeeServerInfo;
+  public boolean isObsolete();
+    descriptor: ()Z
+  public boolean isForgeServer();
+    descriptor: ()Z
+  public java.util.Queue<net.md_5.bungee.ServerConnection$KeepAliveData> getKeepAlives();
+    descriptor: ()Ljava/util/Queue;
+  public void setObsolete(boolean);
+    descriptor: (Z)V
+  public void sendData(java.lang.String, byte[]);
+    descriptor: (Ljava/lang/String;[B)V
+  public void disconnect(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public void disconnect(net.md_5.bungee.api.chat.BaseComponent...);
+    descriptor: ([Lnet/md_5/bungee/api/chat/BaseComponent;)V
+  public void forceDisconnect();
+    descriptor: ()V
+  public void disconnect(net.md_5.bungee.api.chat.BaseComponent);
+    descriptor: (Lnet/md_5/bungee/api/chat/BaseComponent;)V
+  public java.net.InetSocketAddress getAddress();
+    descriptor: ()Ljava/net/InetSocketAddress;
+  public java.net.SocketAddress getSocketAddress();
+    descriptor: ()Ljava/net/SocketAddress;
+  public boolean isConnected();
+    descriptor: ()Z
+  public net.md_5.bungee.api.connection.Connection$Unsafe unsafe();
+    descriptor: ()Lnet/md_5/bungee/api/connection/Connection$Unsafe;
+  public net.md_5.bungee.api.config.ServerInfo getInfo();
+    descriptor: ()Lnet/md_5/bungee/api/config/ServerInfo;
+  static {};
+    descriptor: ()V
+### S.class
+  private net.md_5.bungee.UserConnection b;
+    descriptor: Lnet/md_5/bungee/UserConnection;
+  private boolean f;
+    descriptor: Z
+  private long a;
+    descriptor: J
+  public S(net.md_5.bungee.connection.InitialHandler, java.lang.Runnable, net.md_5.bungee.UserConnection, int, int);
+    descriptor: (Lnet/md_5/bungee/connection/InitialHandler;Ljava/lang/Runnable;Lnet/md_5/bungee/UserConnection;II)V
+  public void handle(net.md_5.bungee.protocol.packet.KeepAlive) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/packet/KeepAlive;)V
+  public void a();
+    descriptor: ()V
+  public boolean a();
+    descriptor: ()Z
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+### t.class
+  private static final java.util.Map<java.lang.String, java.lang.String> a;
+    descriptor: Ljava/util/Map;
+  public static java.lang.String a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/String;
+  static {};
+    descriptor: ()V
+### T.class
+  private boolean f;
+    descriptor: Z
+  private long a;
+    descriptor: J
+  public T(net.md_5.bungee.connection.InitialHandler, java.lang.Runnable, net.md_5.bungee.UserConnection, int, int);
+    descriptor: (Lnet/md_5/bungee/connection/InitialHandler;Ljava/lang/Runnable;Lnet/md_5/bungee/UserConnection;II)V
+  public void a();
+    descriptor: ()V
+  public boolean shouldHandle(net.md_5.bungee.protocol.PacketWrapper) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/PacketWrapper;)Z
+  public void handle(net.md_5.bungee.protocol.packet.KeepAlive) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/packet/KeepAlive;)V
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+### u$1$1.class
+  final u$1 a;
+    descriptor: Lu$1;
+    descriptor: (Lu$1;)V
+  protected void a(io.netty.channel.ChannelHandlerContext, io.netty.handler.codec.dns.DefaultDnsResponse);
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/handler/codec/dns/DefaultDnsResponse;)V
+  protected void channelRead0(io.netty.channel.ChannelHandlerContext, java.lang.Object) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Object;)V
+### u$1$2.class
+  final u$1 a;
+    descriptor: Lu$1;
+    descriptor: (Lu$1;)V
+  public void exceptionCaught(io.netty.channel.ChannelHandlerContext, java.lang.Throwable) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Ljava/lang/Throwable;)V
+### u$1.class
+  final java.util.concurrent.CompletableFuture a;
+    descriptor: Ljava/util/concurrent/CompletableFuture;
+  final u a;
+    descriptor: Lu;
+    descriptor: (Lu;Ljava/util/concurrent/CompletableFuture;)V
+  protected void a(io.netty.channel.socket.SocketChannel);
+    descriptor: (Lio/netty/channel/socket/SocketChannel;)V
+  protected void initChannel(io.netty.channel.Channel) throws java.lang.Exception;
+    descriptor: (Lio/netty/channel/Channel;)V
+### U$1.class
+    descriptor: (Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;Ljava/lang/String;)V
+  public io.netty.buffer.ByteBuf a(io.netty.buffer.ByteBuf, java.lang.Class, net.md_5.bungee.protocol.ProtocolConstants$Direction, int, int);
+    descriptor: (Lio/netty/buffer/ByteBuf;Ljava/lang/Class;Lnet/md_5/bungee/protocol/ProtocolConstants$Direction;II)Lio/netty/buffer/ByteBuf;
+### u.class
+  public u();
+    descriptor: ()V
+  public java.lang.String a(io.netty.handler.codec.dns.DefaultDnsResponse);
+    descriptor: (Lio/netty/handler/codec/dns/DefaultDnsResponse;)Ljava/lang/String;
+  public java.util.concurrent.CompletableFuture<java.lang.String> a(java.lang.String, io.netty.channel.EventLoop);
+    descriptor: (Ljava/lang/String;Lio/netty/channel/EventLoop;)Ljava/util/concurrent/CompletableFuture;
+  private static void a(java.lang.String, java.util.concurrent.CompletableFuture, io.netty.channel.ChannelFuture) throws java.lang.Exception;
+    descriptor: (Ljava/lang/String;Ljava/util/concurrent/CompletableFuture;Lio/netty/channel/ChannelFuture;)V
+### U.class
+  protected static final gnu.trove.map.TIntObjectMap<java.lang.Object> a;
+    descriptor: Lgnu/trove/map/TIntObjectMap;
+  private static final an<net.md_5.bungee.protocol.packet.RawDataPacket> b;
+    descriptor: Lan;
+  protected static final an<net.md_5.bungee.protocol.packet.RawDataPacket> a;
+    descriptor: Lan;
+  protected final int a;
+    descriptor: I
+  protected final net.md_5.bungee.UserConnection a;
+    descriptor: Lnet/md_5/bungee/UserConnection;
+  protected final net.md_5.bungee.connection.InitialHandler a;
+    descriptor: Lnet/md_5/bungee/connection/InitialHandler;
+  protected java.lang.Runnable a;
+    descriptor: Ljava/lang/Runnable;
+  protected volatile boolean a;
+    descriptor: Z
+  protected volatile boolean b;
+    descriptor: Z
+  protected volatile boolean c;
+    descriptor: Z
+  private int d;
+    descriptor: I
+  protected int b;
+    descriptor: I
+  private boolean f;
+    descriptor: Z
+  private int e;
+    descriptor: I
+  private int f;
+    descriptor: I
+  protected int c;
+    descriptor: I
+  protected boolean d;
+    descriptor: Z
+  protected boolean e;
+    descriptor: Z
+  private double a;
+    descriptor: D
+  private double b;
+    descriptor: D
+  private int g;
+    descriptor: I
+  private long a;
+    descriptor: J
+  private boolean g;
+    descriptor: Z
+  private boolean h;
+    descriptor: Z
+  private boolean i;
+    descriptor: Z
+  private long b;
+    descriptor: J
+  private int h;
+    descriptor: I
+  private int i;
+    descriptor: I
+  private boolean j;
+    descriptor: Z
+  private int j;
+    descriptor: I
+  public U(net.md_5.bungee.connection.InitialHandler, net.md_5.bungee.UserConnection, int, int, java.lang.Runnable);
+    descriptor: (Lnet/md_5/bungee/connection/InitialHandler;Lnet/md_5/bungee/UserConnection;IILjava/lang/Runnable;)V
+  protected void a(io.netty.channel.Channel, io.netty.buffer.ByteBuf);
+    descriptor: (Lio/netty/channel/Channel;Lio/netty/buffer/ByteBuf;)V
+  public void a(boolean);
+    descriptor: (Z)V
+  public void a(int);
+    descriptor: (I)V
+  public void handle(net.md_5.bungee.protocol.packet.PluginMessage) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/packet/PluginMessage;)V
+  public void handle(net.md_5.bungee.protocol.packet.KeepAlive) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/packet/KeepAlive;)V
+  protected void b();
+    descriptor: ()V
+  public boolean shouldHandle(net.md_5.bungee.protocol.PacketWrapper) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/PacketWrapper;)Z
+  public void handle(net.md_5.bungee.protocol.packet.ClientSettings) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/packet/ClientSettings;)V
+  protected void c();
+    descriptor: ()V
+  private void d();
+    descriptor: ()V
+  public void handle(net.md_5.bungee.protocol.PacketWrapper) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/protocol/PacketWrapper;)V
+  private void b(int);
+    descriptor: (I)V
+  public java.lang.Runnable a();
+    descriptor: ()Ljava/lang/Runnable;
+  public abstract void a();
+    descriptor: ()V
+  public boolean a();
+    descriptor: ()Z
+  public int a();
+    descriptor: ()I
+  public void disconnected(net.md_5.bungee.netty.ChannelWrapper) throws java.lang.Exception;
+    descriptor: (Lnet/md_5/bungee/netty/ChannelWrapper;)V
+  public java.lang.String a();
+    descriptor: ()Ljava/lang/String;
+  private void a(io.netty.util.concurrent.Future) throws java.lang.Exception;
+    descriptor: (Lio/netty/util/concurrent/Future;)V
+  private void e();
+    descriptor: ()V
+  static {};
+    descriptor: ()V
+### v.class
+  public abstract void a(int);
+    descriptor: (I)V
+### V.class
+  public abstract void a(T);
+    descriptor: (Lio/netty/channel/Channel;)V
+  public abstract boolean a(T);
+    descriptor: (Lio/netty/channel/Channel;)Z
+  public abstract int a(T);
+    descriptor: (Lio/netty/channel/Channel;)I
+  public abstract boolean b(T);
+    descriptor: (Lio/netty/channel/Channel;)Z
+### w.class
+  private static final net.md_5.bungee.protocol.MutedCorruptedFrameException a;
+    descriptor: Lnet/md_5/bungee/protocol/MutedCorruptedFrameException;
+  private static final net.md_5.bungee.protocol.MutedCorruptedFrameException b;
+    descriptor: Lnet/md_5/bungee/protocol/MutedCorruptedFrameException;
+  private static final net.md_5.bungee.protocol.MutedCorruptedFrameException c;
+    descriptor: Lnet/md_5/bungee/protocol/MutedCorruptedFrameException;
+  private int a;
+    descriptor: I
+  public w();
+    descriptor: ()V
+  protected void decode(io.netty.channel.ChannelHandlerContext, io.netty.buffer.ByteBuf, java.util.List<java.lang.Object>);
+    descriptor: (Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V
+  static {};
+    descriptor: ()V
+### W.class
+  public W();
+    descriptor: ()V
+  public void a(io.netty.channel.epoll.EpollSocketChannel);
+    descriptor: (Lio/netty/channel/epoll/EpollSocketChannel;)V
+  public int a(io.netty.channel.epoll.EpollSocketChannel);
+    descriptor: (Lio/netty/channel/epoll/EpollSocketChannel;)I
+  public boolean a(io.netty.channel.epoll.EpollSocketChannel);
+    descriptor: (Lio/netty/channel/epoll/EpollSocketChannel;)Z
+  public boolean b(io.netty.channel.epoll.EpollSocketChannel);
+    descriptor: (Lio/netty/channel/epoll/EpollSocketChannel;)Z
+  public boolean b(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)Z
+  public int a(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)I
+  public boolean a(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)Z
+  public void a(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)V
+### x$a.class
+  public static final x$a a;
+    descriptor: Lx$a;
+  public static final x$a b;
+    descriptor: Lx$a;
+  public static final x$a c;
+    descriptor: Lx$a;
+  public static final x$a d;
+    descriptor: Lx$a;
+  private static final x$a[] a;
+    descriptor: [Lx$a;
+  public static x$a[] values();
+    descriptor: ()[Lx$a;
+  public static x$a valueOf(java.lang.String);
+    descriptor: (Ljava/lang/String;)Lx$a;
+  private x$a();
+    descriptor: (Ljava/lang/String;I)V
+  static {};
+    descriptor: ()V
+### x.class
+  private int a;
+    descriptor: I
+  private int b;
+    descriptor: I
+  private x$a a;
+    descriptor: Lx$a;
+    descriptor: ()V
+  public boolean process(byte);
+    descriptor: (B)Z
+  public int a();
+    descriptor: ()I
+  public int b();
+    descriptor: ()I
+  public x$a a();
+    descriptor: ()Lx$a;
+### X.class
+  public X();
+    descriptor: ()V
+  public void a(io.netty.channel.socket.nio.NioSocketChannel);
+    descriptor: (Lio/netty/channel/socket/nio/NioSocketChannel;)V
+  public boolean a(T);
+    descriptor: (Lio/netty/channel/socket/nio/NioSocketChannel;)Z
+  public int a(T);
+    descriptor: (Lio/netty/channel/socket/nio/NioSocketChannel;)I
+  public boolean b(T);
+    descriptor: (Lio/netty/channel/socket/nio/NioSocketChannel;)Z
+  public boolean b(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)Z
+  public int a(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)I
+  public boolean a(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)Z
+  public void a(io.netty.channel.Channel);
+    descriptor: (Lio/netty/channel/Channel;)V
+### y.class
+  private final int a;
+    descriptor: I
+  private final boolean a;
+    descriptor: Z
+  private final boolean b;
+    descriptor: Z
+  private final boolean c;
+    descriptor: Z
+  private final boolean d;
+    descriptor: Z
+  private final boolean e;
+    descriptor: Z
+  private final boolean f;
+    descriptor: Z
+  private final int b;
+    descriptor: I
+  private final int c;
+    descriptor: I
+  private final int d;
+    descriptor: I
+  private final int e;
+    descriptor: I
+  private final int f;
+    descriptor: I
+  private final int g;
+    descriptor: I
+  private final int h;
+    descriptor: I
+  private final int i;
+    descriptor: I
+  private final int j;
+    descriptor: I
+  private final int k;
+    descriptor: I
+  private final int l;
+    descriptor: I
+  private final int m;
+    descriptor: I
+  private final int n;
+    descriptor: I
+  private final int o;
+    descriptor: I
+  private final int p;
+    descriptor: I
+  private final int q;
+    descriptor: I
+  private final int r;
+    descriptor: I
+  private final int s;
+    descriptor: I
+  private final boolean g;
+    descriptor: Z
+  private final int t;
+    descriptor: I
+  private final int u;
+    descriptor: I
+  private final int v;
+    descriptor: I
+  private final int w;
+    descriptor: I
+  private final boolean h;
+    descriptor: Z
+  private final int x;
+    descriptor: I
+  private final int y;
+    descriptor: I
+  private final int z;
+    descriptor: I
+  private final boolean i;
+    descriptor: Z
+  private final int A;
+    descriptor: I
+  private final boolean j;
+    descriptor: Z
+  private final int B;
+    descriptor: I
+  private final boolean k;
+    descriptor: Z
+  private final int C;
+    descriptor: I
+  private final boolean l;
+    descriptor: Z
+  private final int D;
+    descriptor: I
+  private final int E;
+    descriptor: I
+  private final int F;
+    descriptor: I
+  private final java.util.Set<java.lang.String> a;
+    descriptor: Ljava/util/Set;
+  private boolean m;
+    descriptor: Z
+  private final boolean n;
+    descriptor: Z
+  private final int G;
+    descriptor: I
+  private final int H;
+    descriptor: I
+  private final boolean o;
+    descriptor: Z
+  private final java.util.Set<java.lang.String> b;
+    descriptor: Ljava/util/Set;
+  private final java.util.Set<java.lang.String> c;
+    descriptor: Ljava/util/Set;
+  private final java.util.Set<java.lang.String> d;
+    descriptor: Ljava/util/Set;
+  private final boolean p;
+    descriptor: Z
+  private final java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private final java.lang.String b;
+    descriptor: Ljava/lang/String;
+  private final boolean q;
+    descriptor: Z
+  private final java.lang.String c;
+    descriptor: Ljava/lang/String;
+  private final boolean r;
+    descriptor: Z
+  private final int I;
+    descriptor: I
+  private final int J;
+    descriptor: I
+  private final long a;
+    descriptor: J
+  private final boolean s;
+    descriptor: Z
+  private final boolean t;
+    descriptor: Z
+  private final boolean u;
+    descriptor: Z
+  private final boolean v;
+    descriptor: Z
+  private final boolean w;
+    descriptor: Z
+  private final boolean x;
+    descriptor: Z
+  private final int K;
+    descriptor: I
+  private final int L;
+    descriptor: I
+  private final int M;
+    descriptor: I
+  private final boolean y;
+    descriptor: Z
+  private final int N;
+    descriptor: I
+  private final int O;
+    descriptor: I
+  private final int P;
+    descriptor: I
+  private final boolean z;
+    descriptor: Z
+  private final int Q;
+    descriptor: I
+  private final java.util.List<java.lang.String> a;
+    descriptor: Ljava/util/List;
+  private final boolean A;
+    descriptor: Z
+  private final boolean B;
+    descriptor: Z
+  private final boolean C;
+    descriptor: Z
+  private final boolean D;
+    descriptor: Z
+  private final boolean E;
+    descriptor: Z
+  private final boolean F;
+    descriptor: Z
+  private final boolean G;
+    descriptor: Z
+  private final int R;
+    descriptor: I
+  private final long b;
+    descriptor: J
+  private final boolean H;
+    descriptor: Z
+  private final double a;
+    descriptor: D
+  private final int S;
+    descriptor: I
+  private final int T;
+    descriptor: I
+  private final int U;
+    descriptor: I
+  private final boolean I;
+    descriptor: Z
+  private final int V;
+    descriptor: I
+  private final boolean J;
+    descriptor: Z
+  private final boolean K;
+    descriptor: Z
+  private final boolean L;
+    descriptor: Z
+  private final boolean M;
+    descriptor: Z
+  private final int W;
+    descriptor: I
+  private final int X;
+    descriptor: I
+  private final int Y;
+    descriptor: I
+  private final int Z;
+    descriptor: I
+  private final int aa;
+    descriptor: I
+  private final boolean N;
+    descriptor: Z
+  private final int ab;
+    descriptor: I
+  private final boolean O;
+    descriptor: Z
+  private final boolean P;
+    descriptor: Z
+  private final boolean Q;
+    descriptor: Z
+  private final int ac;
+    descriptor: I
+  private final boolean R;
+    descriptor: Z
+  private final boolean S;
+    descriptor: Z
+  private final java.util.Set<java.lang.String> e;
+    descriptor: Ljava/util/Set;
+  private final java.lang.String d;
+    descriptor: Ljava/lang/String;
+  private final boolean T;
+    descriptor: Z
+  private final java.lang.String e;
+    descriptor: Ljava/lang/String;
+  private final boolean U;
+    descriptor: Z
+  private final boolean V;
+    descriptor: Z
+  private final boolean W;
+    descriptor: Z
+  private final boolean X;
+    descriptor: Z
+  private final net.md_5.bungee.protocol.DefinedPacket a;
+    descriptor: Lnet/md_5/bungee/protocol/DefinedPacket;
+  private final net.md_5.bungee.protocol.DefinedPacket b;
+    descriptor: Lnet/md_5/bungee/protocol/DefinedPacket;
+  private final int ad;
+    descriptor: I
+  private final int ae;
+    descriptor: I
+  private final boolean Y;
+    descriptor: Z
+  private final boolean Z;
+    descriptor: Z
+  private final boolean aa;
+    descriptor: Z
+  private final net.md_5.bungee.api.chat.BaseComponent[] a;
+    descriptor: [Lnet/md_5/bungee/api/chat/BaseComponent;
+  private final java.lang.String f;
+    descriptor: Ljava/lang/String;
+  private final boolean ab;
+    descriptor: Z
+  private final boolean ac;
+    descriptor: Z
+  private final long c;
+    descriptor: J
+  private final boolean ad;
+    descriptor: Z
+  private final boolean ae;
+    descriptor: Z
+  private final boolean af;
+    descriptor: Z
+  private final boolean ag;
+    descriptor: Z
+  private final boolean ah;
+    descriptor: Z
+  private final int af;
+    descriptor: I
+  private final boolean ai;
+    descriptor: Z
+  private final boolean aj;
+    descriptor: Z
+  private final boolean ak;
+    descriptor: Z
+  private final boolean al;
+    descriptor: Z
+  private final int ag;
+    descriptor: I
+  private final boolean am;
+    descriptor: Z
+  private final int ah;
+    descriptor: I
+  private final java.lang.String[] a;
+    descriptor: [Ljava/lang/String;
+  private final boolean an;
+    descriptor: Z
+  private final boolean ao;
+    descriptor: Z
+  private final boolean ap;
+    descriptor: Z
+  private final boolean aq;
+    descriptor: Z
+  private final boolean ar;
+    descriptor: Z
+  private final int ai;
+    descriptor: I
+  private final boolean as;
+    descriptor: Z
+  private final boolean at;
+    descriptor: Z
+  private final boolean au;
+    descriptor: Z
+  private final boolean av;
+    descriptor: Z
+  private final boolean aw;
+    descriptor: Z
+  private final net.md_5.bungee.conf.YamlConfig a;
+    descriptor: Lnet/md_5/bungee/conf/YamlConfig;
+  public y();
+    descriptor: ()V
+  private net.md_5.bungee.protocol.DefinedPacket a(java.lang.String...);
+    descriptor: ([Ljava/lang/String;)Lnet/md_5/bungee/protocol/DefinedPacket;
+  public int a();
+    descriptor: ()I
+  public int b();
+    descriptor: ()I
+  public int c();
+    descriptor: ()I
+  public boolean a();
+    descriptor: ()Z
+  public boolean b();
+    descriptor: ()Z
+  public boolean c();
+    descriptor: ()Z
+  public boolean d();
+    descriptor: ()Z
+  public int d();
+    descriptor: ()I
+  public boolean e();
+    descriptor: ()Z
+  public boolean f();
+    descriptor: ()Z
+  public boolean g();
+    descriptor: ()Z
+  public boolean h();
+    descriptor: ()Z
+  public int e();
+    descriptor: ()I
+  public boolean i();
+    descriptor: ()Z
+  public boolean j();
+    descriptor: ()Z
+  public boolean k();
+    descriptor: ()Z
+  public boolean l();
+    descriptor: ()Z
+  public int f();
+    descriptor: ()I
+  public boolean m();
+    descriptor: ()Z
+  public boolean n();
+    descriptor: ()Z
+  public java.lang.String[] a();
+    descriptor: ()[Ljava/lang/String;
+  public boolean o();
+    descriptor: ()Z
+  public int g();
+    descriptor: ()I
+  public boolean p();
+    descriptor: ()Z
+  public int h();
+    descriptor: ()I
+  public boolean q();
+    descriptor: ()Z
+  public boolean r();
+    descriptor: ()Z
+  public boolean s();
+    descriptor: ()Z
+  public boolean t();
+    descriptor: ()Z
+  public boolean u();
+    descriptor: ()Z
+  public boolean v();
+    descriptor: ()Z
+  public boolean w();
+    descriptor: ()Z
+  public long a();
+    descriptor: ()J
+  public int i();
+    descriptor: ()I
+  public java.lang.String a();
+    descriptor: ()Ljava/lang/String;
+  public boolean x();
+    descriptor: ()Z
+  public net.md_5.bungee.api.chat.BaseComponent[] a();
+    descriptor: ()[Lnet/md_5/bungee/api/chat/BaseComponent;
+  public boolean y();
+    descriptor: ()Z
+  public boolean z();
+    descriptor: ()Z
+  public boolean A();
+    descriptor: ()Z
+  public boolean B();
+    descriptor: ()Z
+  public java.lang.String b();
+    descriptor: ()Ljava/lang/String;
+  public boolean C();
+    descriptor: ()Z
+  public boolean D();
+    descriptor: ()Z
+  public boolean E();
+    descriptor: ()Z
+  public java.util.Set<java.lang.String> a();
+    descriptor: ()Ljava/util/Set;
+  public java.lang.String c();
+    descriptor: ()Ljava/lang/String;
+  public boolean F();
+    descriptor: ()Z
+  public boolean G();
+    descriptor: ()Z
+  public int j();
+    descriptor: ()I
+  public boolean H();
+    descriptor: ()Z
+  public boolean I();
+    descriptor: ()Z
+  public boolean J();
+    descriptor: ()Z
+  public boolean K();
+    descriptor: ()Z
+  public boolean L();
+    descriptor: ()Z
+  public int k();
+    descriptor: ()I
+  public int l();
+    descriptor: ()I
+  public int m();
+    descriptor: ()I
+  public int n();
+    descriptor: ()I
+  public int o();
+    descriptor: ()I
+  public boolean M();
+    descriptor: ()Z
+  public boolean N();
+    descriptor: ()Z
+  public boolean O();
+    descriptor: ()Z
+  public boolean P();
+    descriptor: ()Z
+  public double a();
+    descriptor: ()D
+  public int p();
+    descriptor: ()I
+  public int q();
+    descriptor: ()I
+  public boolean Q();
+    descriptor: ()Z
+  public int r();
+    descriptor: ()I
+  public boolean R();
+    descriptor: ()Z
+  public boolean S();
+    descriptor: ()Z
+  public int s();
+    descriptor: ()I
+  public long b();
+    descriptor: ()J
+  public boolean T();
+    descriptor: ()Z
+  public boolean U();
+    descriptor: ()Z
+  public boolean V();
+    descriptor: ()Z
+  public boolean W();
+    descriptor: ()Z
+  public boolean X();
+    descriptor: ()Z
+  public boolean Y();
+    descriptor: ()Z
+  public int t();
+    descriptor: ()I
+  public boolean Z();
+    descriptor: ()Z
+  public java.util.Collection<java.lang.String> a();
+    descriptor: ()Ljava/util/Collection;
+  public int u();
+    descriptor: ()I
+  public int v();
+    descriptor: ()I
+  public boolean aa();
+    descriptor: ()Z
+  public boolean ab();
+    descriptor: ()Z
+  public int w();
+    descriptor: ()I
+  public int x();
+    descriptor: ()I
+  public int y();
+    descriptor: ()I
+  public long c();
+    descriptor: ()J
+  public boolean ac();
+    descriptor: ()Z
+  public boolean ad();
+    descriptor: ()Z
+  public java.util.Set<java.lang.String> b();
+    descriptor: ()Ljava/util/Set;
+  public java.util.Set<java.lang.String> c();
+    descriptor: ()Ljava/util/Set;
+  public boolean ae();
+    descriptor: ()Z
+  public java.lang.String d();
+    descriptor: ()Ljava/lang/String;
+  public java.lang.String e();
+    descriptor: ()Ljava/lang/String;
+  public boolean af();
+    descriptor: ()Z
+  public java.lang.String f();
+    descriptor: ()Ljava/lang/String;
+  public int z();
+    descriptor: ()I
+  public int A();
+    descriptor: ()I
+  public boolean ag();
+    descriptor: ()Z
+  public boolean a(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public boolean a(java.net.InetAddress);
+    descriptor: (Ljava/net/InetAddress;)Z
+  public boolean b(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public int B();
+    descriptor: ()I
+  public int C();
+    descriptor: ()I
+  public boolean ah();
+    descriptor: ()Z
+  public boolean ai();
+    descriptor: ()Z
+  public int D();
+    descriptor: ()I
+  public boolean aj();
+    descriptor: ()Z
+  public int E();
+    descriptor: ()I
+  public int F();
+    descriptor: ()I
+  public boolean ak();
+    descriptor: ()Z
+  public int G();
+    descriptor: ()I
+  public int H();
+    descriptor: ()I
+  public int I();
+    descriptor: ()I
+  public boolean al();
+    descriptor: ()Z
+  public int J();
+    descriptor: ()I
+  public int K();
+    descriptor: ()I
+  public int L();
+    descriptor: ()I
+  public boolean am();
+    descriptor: ()Z
+  public int M();
+    descriptor: ()I
+  public int N();
+    descriptor: ()I
+  public boolean an();
+    descriptor: ()Z
+  public boolean ao();
+    descriptor: ()Z
+  public boolean ap();
+    descriptor: ()Z
+  public boolean aq();
+    descriptor: ()Z
+  public int O();
+    descriptor: ()I
+  public int P();
+    descriptor: ()I
+  public int Q();
+    descriptor: ()I
+  public int R();
+    descriptor: ()I
+  public int S();
+    descriptor: ()I
+  public int T();
+    descriptor: ()I
+  public int U();
+    descriptor: ()I
+  public int V();
+    descriptor: ()I
+  public int W();
+    descriptor: ()I
+  public int X();
+    descriptor: ()I
+  public int Y();
+    descriptor: ()I
+  public int Z();
+    descriptor: ()I
+  public int aa();
+    descriptor: ()I
+  public int ab();
+    descriptor: ()I
+  public int ac();
+    descriptor: ()I
+  public boolean ar();
+    descriptor: ()Z
+  public boolean as();
+    descriptor: ()Z
+  public boolean at();
+    descriptor: ()Z
+  public net.md_5.bungee.protocol.DefinedPacket a();
+    descriptor: ()Lnet/md_5/bungee/protocol/DefinedPacket;
+  public net.md_5.bungee.protocol.DefinedPacket b();
+    descriptor: ()Lnet/md_5/bungee/protocol/DefinedPacket;
+  public int ad();
+    descriptor: ()I
+  public boolean au();
+    descriptor: ()Z
+  public int ae();
+    descriptor: ()I
+### Y.class
+  private final W<io.netty.channel.epoll.EpollSocketChannel> a;
+    descriptor: LW;
+  private final X<io.netty.channel.socket.nio.NioSocketChannel> a;
+    descriptor: LX;
+  public Y();
+    descriptor: ()V
+  public void a(T);
+    descriptor: (Lio/netty/channel/Channel;)V
+  public boolean a(T);
+    descriptor: (Lio/netty/channel/Channel;)Z
+  public int a(T);
+    descriptor: (Lio/netty/channel/Channel;)I
+  public boolean b(T);
+    descriptor: (Lio/netty/channel/Channel;)Z
+### Z$1.class
+### Z$a.class
+  private long a;
+    descriptor: J
+  private long b;
+    descriptor: J
+  private Z$a();
+    descriptor: ()V
+  public void run();
+    descriptor: ()V
+  private long a();
+    descriptor: ()J
+  private long b();
+    descriptor: ()J
+  private long c();
+    descriptor: ()J
+  private long d();
+    descriptor: ()J
+    descriptor: (LZ$1;)V
+### z.class
+  private final h a;
+    descriptor: Lh;
+  private final h b;
+    descriptor: Lh;
+  private final h c;
+    descriptor: Lh;
+  private final h d;
+    descriptor: Lh;
+  private final h e;
+    descriptor: Lh;
+  private final h f;
+    descriptor: Lh;
+  private final h g;
+    descriptor: Lh;
+  private final h h;
+    descriptor: Lh;
+  private final h i;
+    descriptor: Lh;
+  public z();
+    descriptor: ()V
+  public h a();
+    descriptor: ()Lh;
+  public h b();
+    descriptor: ()Lh;
+  public h c();
+    descriptor: ()Lh;
+  public h d();
+    descriptor: ()Lh;
+  public h e();
+    descriptor: ()Lh;
+  public h f();
+    descriptor: ()Lh;
+  public h g();
+    descriptor: ()Lh;
+  public h h();
+    descriptor: ()Lh;
+### Z.class
+  private java.util.Timer a;
+    descriptor: Ljava/util/Timer;
+  public Z();
+    descriptor: ()V
+  public void execute(net.md_5.bungee.api.CommandSender, java.lang.String[]);
+    descriptor: (Lnet/md_5/bungee/api/CommandSender;[Ljava/lang/String;)V
+### me/minebuilders/proxyfork/antiproxy/a.class
+  private final java.util.List<I> a;
+    descriptor: Ljava/util/List;
+  private aj<java.lang.Integer, me.minebuilders.proxyfork.antiproxy.c> a;
+    descriptor: Laj;
+  private me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager a;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;
+  private int a;
+    descriptor: I
+  private int b;
+    descriptor: I
+  public me.minebuilders.proxyfork.antiproxy.a();
+    descriptor: ()V
+  public void a();
+    descriptor: ()V
+  public me.minebuilders.proxyfork.antiproxy.b a(java.lang.String, java.lang.String, boolean);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;Z)Lme/minebuilders/proxyfork/antiproxy/b;
+  public void a(int);
+    descriptor: (I)V
+  public me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager a();
+    descriptor: ()Lme/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager;
+  private void b();
+    descriptor: ()V
+  private void c();
+    descriptor: ()V
+  private static boolean a(java.util.Map$Entry);
+    descriptor: (Ljava/util/Map$Entry;)Z
+### me/minebuilders/proxyfork/antiproxy/AntiProxyWhitelistManager.class
+  private static final long serialVersionUID;
+    descriptor: J
+  private final java.util.Set<java.lang.String> whitelistedUsernames;
+    descriptor: Ljava/util/Set;
+  private gnu.trove.set.TIntSet whitelistedIps;
+    descriptor: Lgnu/trove/set/TIntSet;
+  private java.io.File backendFile;
+    descriptor: Ljava/io/File;
+  public me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager(java.io.File);
+    descriptor: (Ljava/io/File;)V
+  public me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager();
+    descriptor: ()V
+  public void setBackendFile(java.io.File);
+    descriptor: (Ljava/io/File;)V
+  private void saveToFile();
+    descriptor: ()V
+  public void whitelistEntry(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public boolean removeWhitelistedEntry(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public boolean isEntryWhitelisted(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public boolean isIPWhitelisted(int);
+    descriptor: (I)Z
+  public boolean isUsernameWhitelisted(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+  public java.util.Set<java.lang.String> getWhitelistedUsernames();
+    descriptor: ()Ljava/util/Set;
+  public gnu.trove.set.TIntSet getWhitelistedIps();
+    descriptor: ()Lgnu/trove/set/TIntSet;
+  private void lambda$saveToFile$0();
+    descriptor: ()V
+### me/minebuilders/proxyfork/antiproxy/b.class
+  public static final me.minebuilders.proxyfork.antiproxy.b a;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/b;
+  public static final me.minebuilders.proxyfork.antiproxy.b b;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/b;
+  public static final me.minebuilders.proxyfork.antiproxy.b c;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/b;
+  public static final me.minebuilders.proxyfork.antiproxy.b d;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/b;
+  private static final me.minebuilders.proxyfork.antiproxy.b[] a;
+    descriptor: [Lme/minebuilders/proxyfork/antiproxy/b;
+  public static me.minebuilders.proxyfork.antiproxy.b[] values();
+    descriptor: ()[Lme/minebuilders/proxyfork/antiproxy/b;
+  public static me.minebuilders.proxyfork.antiproxy.b valueOf(java.lang.String);
+    descriptor: (Ljava/lang/String;)Lme/minebuilders/proxyfork/antiproxy/b;
+  private me.minebuilders.proxyfork.antiproxy.b();
+    descriptor: (Ljava/lang/String;I)V
+  static {};
+    descriptor: ()V
+### me/minebuilders/proxyfork/antiproxy/c.class
+  private me.minebuilders.proxyfork.antiproxy.b a;
+    descriptor: Lme/minebuilders/proxyfork/antiproxy/b;
+  private java.lang.String a;
+    descriptor: Ljava/lang/String;
+  private java.lang.String b;
+    descriptor: Ljava/lang/String;
+  private long a;
+    descriptor: J
+  public me.minebuilders.proxyfork.antiproxy.c();
+    descriptor: ()V
+  public long a();
+    descriptor: ()J
+  public java.lang.String a();
+    descriptor: ()Ljava/lang/String;
+  public java.lang.String b();
+    descriptor: ()Ljava/lang/String;
+  public me.minebuilders.proxyfork.antiproxy.b a();
+    descriptor: ()Lme/minebuilders/proxyfork/antiproxy/b;
+  public void a(me.minebuilders.proxyfork.antiproxy.b);
+    descriptor: (Lme/minebuilders/proxyfork/antiproxy/b;)V
+  public void a(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public void b(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+  public void writeExternal(java.io.ObjectOutput) throws java.io.IOException;
+    descriptor: (Ljava/io/ObjectOutput;)V
+  public void readExternal(java.io.ObjectInput) throws java.io.IOException, java.lang.ClassNotFoundException;
+    descriptor: (Ljava/io/ObjectInput;)V

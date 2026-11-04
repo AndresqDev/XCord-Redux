@@ -1,0 +1,108 @@
+package io.netty.handler.stream;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.internal.ObjectUtil;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+public class ChunkedFile implements ChunkedInput<ByteBuf> {
+   private final RandomAccessFile file;
+   private final long startOffset;
+   private final long endOffset;
+   private final int chunkSize;
+   private long offset;
+
+   public ChunkedFile(File var1) throws IOException {
+      this(var1, 8192);
+   }
+
+   public ChunkedFile(File var1, int var2) throws IOException {
+      this(new RandomAccessFile(var1, "r"), var2);
+   }
+
+   public ChunkedFile(RandomAccessFile var1) throws IOException {
+      this(var1, 8192);
+   }
+
+   public ChunkedFile(RandomAccessFile var1, int var2) throws IOException {
+      this(var1, 0L, var1.length(), var2);
+   }
+
+   public ChunkedFile(RandomAccessFile var1, long var2, long var4, int var6) throws IOException {
+      ObjectUtil.checkNotNull(var1, "file");
+      ObjectUtil.checkPositiveOrZero(var2, "offset");
+      ObjectUtil.checkPositiveOrZero(var4, "length");
+      ObjectUtil.checkPositive(var6, "chunkSize");
+      this.file = var1;
+      this.offset = this.startOffset = var2;
+      this.endOffset = var2 + var4;
+      this.chunkSize = var6;
+      var1.seek(var2);
+   }
+
+   public long startOffset() {
+      return this.startOffset;
+   }
+
+   public long endOffset() {
+      return this.endOffset;
+   }
+
+   public long currentOffset() {
+      return this.offset;
+   }
+
+   @Override
+   public boolean isEndOfInput() throws Exception {
+      return this.offset >= this.endOffset || !this.file.getChannel().isOpen();
+   }
+
+   @Override
+   public void close() throws Exception {
+      this.file.close();
+   }
+
+   @Deprecated
+   public ByteBuf readChunk(ChannelHandlerContext var1) throws Exception {
+      return this.readChunk(var1.alloc());
+   }
+
+   public ByteBuf readChunk(ByteBufAllocator var1) throws Exception {
+      long var2 = this.offset;
+      if (var2 >= this.endOffset) {
+         return null;
+      } else {
+         int var4 = (int)Math.min((long)this.chunkSize, this.endOffset - var2);
+         ByteBuf var5 = var1.heapBuffer(var4);
+         boolean var6 = true;
+
+         ByteBuf var7;
+         try {
+            this.file.readFully(var5.array(), var5.arrayOffset(), var4);
+            var5.writerIndex(var4);
+            this.offset = var2 + (long)var4;
+            var6 = false;
+            var7 = var5;
+         } finally {
+            if (var6) {
+               var5.release();
+            }
+         }
+
+         return var7;
+      }
+   }
+
+   @Override
+   public long length() {
+      return this.endOffset - this.startOffset;
+   }
+
+   @Override
+   public long progress() {
+      return this.offset - this.startOffset;
+   }
+}

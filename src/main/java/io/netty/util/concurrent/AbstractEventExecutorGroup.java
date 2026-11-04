@@ -1,0 +1,87 @@
+package io.netty.util.concurrent;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+public abstract class AbstractEventExecutorGroup implements EventExecutorGroup {
+   @Override
+   public Future<?> submit(Runnable var1) {
+      return this.next().submit(var1);
+   }
+
+   @Override
+   public <T> Future<T> submit(Runnable var1, T var2) {
+      return this.next().submit(var1, (T)var2);
+   }
+
+   @Override
+   public <T> Future<T> submit(Callable<T> var1) {
+      return this.next().submit(var1);
+   }
+
+   @Override
+   public ScheduledFuture<?> schedule(Runnable var1, long var2, TimeUnit var4) {
+      return this.next().schedule(var1, var2, var4);
+   }
+
+   @Override
+   public <V> ScheduledFuture<V> schedule(Callable<V> var1, long var2, TimeUnit var4) {
+      return this.next().schedule(var1, var2, var4);
+   }
+
+   @Override
+   public ScheduledFuture<?> scheduleAtFixedRate(Runnable var1, long var2, long var4, TimeUnit var6) {
+      return this.next().scheduleAtFixedRate(var1, var2, var4, var6);
+   }
+
+   @Override
+   public ScheduledFuture<?> scheduleWithFixedDelay(Runnable var1, long var2, long var4, TimeUnit var6) {
+      return this.next().scheduleWithFixedDelay(var1, var2, var4, var6);
+   }
+
+   @Override
+   public Future<?> shutdownGracefully() {
+      return this.shutdownGracefully(2L, 15L, TimeUnit.SECONDS);
+   }
+
+   @Deprecated
+   @Override
+   public abstract void shutdown();
+
+   @Deprecated
+   @Override
+   public List<Runnable> shutdownNow() {
+      this.shutdown();
+      return Collections.emptyList();
+   }
+
+   @Override
+   public <T> List<java.util.concurrent.Future<T>> invokeAll(Collection<? extends Callable<T>> var1) throws InterruptedException {
+      return this.next().invokeAll(var1);
+   }
+
+   @Override
+   public <T> List<java.util.concurrent.Future<T>> invokeAll(Collection<? extends Callable<T>> var1, long var2, TimeUnit var4) throws InterruptedException {
+      return this.next().invokeAll(var1, var2, var4);
+   }
+
+   @Override
+   public <T> T invokeAny(Collection<? extends Callable<T>> var1) throws InterruptedException, ExecutionException {
+      return this.next().invokeAny(var1);
+   }
+
+   @Override
+   public <T> T invokeAny(Collection<? extends Callable<T>> var1, long var2, TimeUnit var4) throws InterruptedException, ExecutionException, TimeoutException {
+      return this.next().invokeAny(var1, var2, var4);
+   }
+
+   @Override
+   public void execute(Runnable var1) {
+      this.next().execute(var1);
+   }
+}

@@ -1,0 +1,3 @@
++ Far faster blacklisting/anti-exploit/anti-DoS (Nearly 100% less bandwidth/CPU usage - Mostly noticeable for non-ipset users)
++ BETA: Added a very powerful new socket check for Linux users (Decimates most attacks with ease)
+/ Some optimizations for handling large bot attacks

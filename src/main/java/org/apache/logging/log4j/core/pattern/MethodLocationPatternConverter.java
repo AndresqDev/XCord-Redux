@@ -1,0 +1,35 @@
+package org.apache.logging.log4j.core.pattern;
+
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.impl.LocationAware;
+
+@Plugin(
+   name = "MethodLocationPatternConverter",
+   category = "Converter"
+)
+@ConverterKeys({"M", "method"})
+public final class MethodLocationPatternConverter extends LogEventPatternConverter implements LocationAware {
+   private static final MethodLocationPatternConverter INSTANCE = new MethodLocationPatternConverter();
+
+   private MethodLocationPatternConverter() {
+      super("Method", "method");
+   }
+
+   public static MethodLocationPatternConverter newInstance(String[] var0) {
+      return INSTANCE;
+   }
+
+   @Override
+   public void format(LogEvent var1, StringBuilder var2) {
+      StackTraceElement var3 = var1.getSource();
+      if (var3 != null) {
+         var2.append(var3.getMethodName());
+      }
+   }
+
+   @Override
+   public boolean requiresLocation() {
+      return true;
+   }
+}

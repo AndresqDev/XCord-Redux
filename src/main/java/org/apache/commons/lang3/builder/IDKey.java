@@ -1,0 +1,26 @@
+package org.apache.commons.lang3.builder;
+
+final class IDKey {
+   private final Object value;
+   private final int id;
+
+   IDKey(Object var1) {
+      this.id = System.identityHashCode(var1);
+      this.value = var1;
+   }
+
+   @Override
+   public int hashCode() {
+      return this.id;
+   }
+
+   @Override
+   public boolean equals(Object var1) {
+      if (!(var1 instanceof IDKey)) {
+         return false;
+      } else {
+         IDKey var2 = (IDKey)var1;
+         return this.id != var2.id ? false : this.value == var2.value;
+      }
+   }
+}

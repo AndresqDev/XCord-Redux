@@ -1,0 +1,16 @@
+/build/
+/input/
+/work/
+/testserver/
+/test/mineflayer/node_modules/
+**/__pycache__/
+*.pyc
+*.log
+*.bak
+*.tmp
+Xcord-renamed.jar
+Xcord-safe.jar
+native-compressor-installer.so
+.idea/
+.vscode/
+.DS_Store
