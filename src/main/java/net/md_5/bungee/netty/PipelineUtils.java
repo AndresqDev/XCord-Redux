@@ -5,7 +5,6 @@ import io.github.waterfallmc.waterfall.event.ConnectionInitEvent;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -49,314 +48,316 @@ import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.Varint21LengthFieldPrepender;
-import xcord.AntiDdosFrameDecoder;
-import xcord.ConnectionStats;
-import xcord.EpollSocketCheck;
-import xcord.NioSocketCheck;
-import xcord.OptimizedReadTimeoutHandler;
-import xcord.ProxyCheckJob;
-import xcord.SocketCheck;
-import xcord.VarIntFrameDecoder;
 import xcord.XCord;
+import xcord.antibot.ConnectionStats;
+import xcord.antivpn.ProxyCheckJob;
+import xcord.network.AntiDdosFrameDecoder;
+import xcord.network.EpollSocketCheck;
+import xcord.network.NioSocketCheck;
+import xcord.network.OptimizedReadTimeoutHandler;
+import xcord.network.SocketCheck;
+import xcord.protocol.VarIntFrameDecoder;
 
 public class PipelineUtils {
-   public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.newInstance("ListerInfo");
-   public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>() {
-      protected void initChannel(Channel var1) throws Exception {
-         SocketAddress var2 = var1.remoteAddress() == null ? var1.parent().localAddress() : var1.remoteAddress();
-         InetAddress var3 = ((InetSocketAddress)var2).getAddress();
-         String var4 = var3.getHostAddress();
-         int var5 = XCord.getAntiBotManager().incrementConnections();
-         if (!XCord.getConfig().getSharedGlobalBlacklistUseIpset()
-            && XCord.getConfig().getSharedGlobalBlacklistEnabled()
-            && XCord.getGlobalBlacklist().isBlacklisted(var4)) {
-            if (XCord.getConfig().getDebugDebugMode()) {
-               System.out.println("[DEBUG] GBlacklisted IP " + var4 + " was rejected.");
+    public static final AttributeKey<ListenerInfo> LISTENER = AttributeKey.newInstance("ListerInfo");
+    public static final ChannelInitializer<Channel> SERVER_CHILD = new ChannelInitializer<Channel>() {
+        @Override
+        protected void initChannel(Channel channel) throws Exception {
+            SocketAddress remoteAddress = channel.remoteAddress() == null ? channel.parent().localAddress() : channel.remoteAddress();
+            InetAddress address = ((InetSocketAddress) remoteAddress).getAddress();
+            String hostAddress = address.getHostAddress();
+            int connectionCount = XCord.getAntiBotManager().incrementConnections();
+
+            if (!XCord.getConfig().getSharedGlobalBlacklistUseIpset()
+                && XCord.getConfig().getSharedGlobalBlacklistEnabled()
+                && XCord.getGlobalBlacklist().isBlacklisted(hostAddress)) {
+                if (XCord.getConfig().getDebugDebugMode()) {
+                    System.out.println("[DEBUG] GBlacklisted IP " + hostAddress + " was rejected.");
+                }
+                PipelineUtils.CHANNEL_UTILITY.close(channel);
+                return;
             }
 
-            PipelineUtils.CHANNEL_UTILITY.close(var1);
-         } else if (XCord.getConfig().getAntiDdosDosIpFilterEnabled()
-            && XCord.getDosFilterBlacklist().isActive()
-            && XCord.getDosFilterBlacklist().isBlacklisted(var4)) {
-            if (XCord.getConfig().getDebugDebugMode()) {
-               System.out.println("[DEBUG] DoS-Filtered " + var4);
+            if (XCord.getConfig().getAntiDdosDosIpFilterEnabled()
+                && XCord.getDosFilterBlacklist().isActive()
+                && XCord.getDosFilterBlacklist().isBlacklisted(hostAddress)) {
+                if (XCord.getConfig().getDebugDebugMode()) {
+                    System.out.println("[DEBUG] DoS-Filtered " + hostAddress);
+                }
+                PipelineUtils.CHANNEL_UTILITY.close(channel);
+                return;
             }
 
-            PipelineUtils.CHANNEL_UTILITY.close(var1);
-         } else {
-            if (!XCord.getConfig().isIgnoredAddress(var3)) {
-               if (XCord.getBlacklistManager().isBlacklisted(var4)) {
-                  if (XCord.getConfig().getDebugDebugMode()) {
-                     System.out.println("[DEBUG] Blacklisted IP " + var4 + " was rejected.");
-                  }
+            if (!XCord.getConfig().isIgnoredAddress(address)) {
+                if (XCord.getBlacklistManager().isBlacklisted(hostAddress)) {
+                    if (XCord.getConfig().getDebugDebugMode()) {
+                        System.out.println("[DEBUG] Blacklisted IP " + hostAddress + " was rejected.");
+                    }
+                    PipelineUtils.CHANNEL_UTILITY.close(channel);
+                    return;
+                }
 
-                  PipelineUtils.CHANNEL_UTILITY.close(var1);
-                  return;
-               }
-
-               ConnectionStats var6 = XCord.getAntiBotManager().getStats(var4);
-               if (!((ListenerInfo)var1.attr(PipelineUtils.LISTENER).get()).isProxyProtocol() && PipelineUtils.CHANNEL_UTILITY.check(var1)) {
-                  if (!XCord.getConfig().getAntiBotLinuxOnlySocketCheckLowerThresholdsOfBotChecksInsteadOfBlacklist()) {
-                     PipelineUtils.CHANNEL_UTILITY.close(var1);
-                     return;
-                  }
-
-                  var6.setFlagged(true);
-               }
-
-               if (var6.checkSpeedyConnection(var3)) {
-                  PipelineUtils.CHANNEL_UTILITY.close(var1);
-                  return;
-               }
-
-               if (var5 > XCord.getConfig().getGeneralNewConnectionSpeedThreshold()) {
-                  if (XCord.getConfig().getDebugDebugMode()) {
-                     System.out.println("[DEBUG] XCord throttled " + var4 + " (Change in xcord.yml) due to your 'new-connection-speed-threshold' threshold.");
-                  }
-
-                  PipelineUtils.CHANNEL_UTILITY.close(var1);
-                  return;
-               }
-
-               if (BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle(var2)) {
-                  if (XCord.getConfig().getDebugDebugMode()) {
-                     System.out.println("[DEBUG] Bungeecord throttled " + var4 + " (Change in bungee.yml)");
-                  }
-
-                  PipelineUtils.CHANNEL_UTILITY.close(var1);
-                  return;
-               }
-
-               if (XCord.getConfig().getLoginAntiVpnEnabled()
-                  && (
-                     XCord.getConfig().getLoginAntiVpnInitialConnectionCheckenabled()
-                        || XCord.getConfig().getLoginAntiVpnInitialConnectionCheckonlyDuringBotAttack() && XCord.getAntiBotManager().isAttackActive()
-                  )) {
-                  ProxyResult var7 = XCord.getAntiProxyManager().check("NA", var4, true);
-                  if (var7 == ProxyResult.DETECTED) {
-                     if (XCord.getConfig().getLoginAntiVpnBlacklistOnDetection()
-                        || XCord.getConfig().getLoginAntiVpnOnlyBlacklistOnDetectionDuringAttack() && XCord.getAntiBotManager().isAttackActive()) {
-                        XCord.getBlacklistManager().isBlacklisted(var3);
-                     }
-
-                     PipelineUtils.CHANNEL_UTILITY.close(var1);
-                     return;
-                  }
-
-                  if (var7 == null && !XCord.getConfig().getLoginAntiVpnInitialConnectionCheckcacheOnly()) {
-                     XCord.getAsyncJobService().submit(new ProxyCheckJob("NA", var4, (var1x, var2x) -> {
-                        if (var1.isActive() && var1x == ProxyResult.DETECTED) {
-                           var1.eventLoop().execute(() -> {
-                              if (var1.isActive()) {
-                                 PipelineUtils.CHANNEL_UTILITY.close(var1);
-                              }
-                           });
-                        }
-                     }));
-                  }
-               }
-            }
-
-            ListenerInfo var9 = (ListenerInfo)var1.attr(PipelineUtils.LISTENER).get();
-            if (BungeeCord.getInstance().getPluginManager().getEventBus().isWatchedListenerActive(0)
-               && BungeeCord.getInstance().getPluginManager().callEvent(new ClientConnectEvent(var2, var9)).isCancelled()) {
-               PipelineUtils.CHANNEL_UTILITY.close(var1);
-            } else {
-               Callback var10 = (var2x, var3x) -> {
-                  if (var2x != null && var2x.isCancelled()) {
-                     PipelineUtils.CHANNEL_UTILITY.close(var1);
-                  } else {
-                     try {
-                        PipelineUtils.CLIENT_BASE.initChannel(var1);
-                     } catch (Exception var5x) {
-                        var5x.printStackTrace();
-                        var1.close();
+                ConnectionStats stats = XCord.getAntiBotManager().getStats(hostAddress);
+                if (!channel.attr(PipelineUtils.LISTENER).get().isProxyProtocol() && PipelineUtils.CHANNEL_UTILITY.check(channel)) {
+                    if (!XCord.getConfig().getAntiBotLinuxOnlySocketCheckLowerThresholdsOfBotChecksInsteadOfBlacklist()) {
+                        PipelineUtils.CHANNEL_UTILITY.close(channel);
                         return;
-                     }
+                    }
+                    stats.setFlagged(true);
+                }
 
-                     if (!XCord.getConfig().getAntiBotNullPingAndPingSpamDisableLegacyPings()) {
-                        var1.pipeline().addBefore("frame-decoder", "legacy-decoder", new LegacyDecoder());
-                     }
+                if (stats.checkSpeedyConnection(address)) {
+                    PipelineUtils.CHANNEL_UTILITY.close(channel);
+                    return;
+                }
 
-                     var1.pipeline()
-                        .addAfter(
-                           "frame-decoder",
-                           "packet-decoder",
-                           new MinecraftDecoder(
-                              Protocol.HANDSHAKE,
-                              true,
-                              ProxyServer.getInstance().getProtocolVersion(),
-                              XCord.getConfig().getPerformanceOptimizationsDontCopyPackets()
-                           )
-                        );
-                     var1.pipeline()
-                        .addAfter(
-                           "frame-prepender", "packet-encoder", new MinecraftEncoder(Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion())
-                        );
-                     var1.pipeline().addBefore("frame-prepender", "legacy-kick", PipelineUtils.legacyKicker);
-                     if (!XCord.getConfig().getAntiBotAntiHangEnabled()
-                        || XCord.getConfig().getAntiBotAntiHangOnlyDuringBotAttack() && !XCord.getAntiBotManager().isAttackActive()) {
-                        PipelineUtils.setTimeoutHandler(var1, (long)XCord.getConfig().getGeneralInitialTimeout());
-                     } else {
-                        PipelineUtils.setTimeoutHandler(var1, (long)XCord.getConfig().getAntiBotAntiHangForceTimeoutTime());
-                     }
+                if (connectionCount > XCord.getConfig().getGeneralNewConnectionSpeedThreshold()) {
+                    if (XCord.getConfig().getDebugDebugMode()) {
+                        System.out.println("[DEBUG] XCord throttled " + hostAddress + " (Change in xcord.yml) due to your 'new-connection-speed-threshold' threshold.");
+                    }
+                    PipelineUtils.CHANNEL_UTILITY.close(channel);
+                    return;
+                }
 
-                     ((HandlerBoss)var1.pipeline().get(HandlerBoss.class)).setHandler(new InitialHandler(BungeeCord.getInstance(), var9));
-                     if (var9.isProxyProtocol()) {
-                        var1.pipeline().addFirst(new ChannelHandler[]{new HAProxyMessageDecoder()});
-                     }
-                  }
-               };
-               if (BungeeCord.getInstance().getPluginManager().getEventBus().isWatchedListenerActive(1)) {
-                  var10.done(null, null);
-               } else {
-                  ConnectionInitEvent var8 = new ConnectionInitEvent(var1.remoteAddress(), var9, var10);
-                  BungeeCord.getInstance().getPluginManager().callEvent(var8);
-               }
+                if (BungeeCord.getInstance().getConnectionThrottle() != null && BungeeCord.getInstance().getConnectionThrottle().throttle(remoteAddress)) {
+                    if (XCord.getConfig().getDebugDebugMode()) {
+                        System.out.println("[DEBUG] Bungeecord throttled " + hostAddress + " (Change in bungee.yml)");
+                    }
+                    PipelineUtils.CHANNEL_UTILITY.close(channel);
+                    return;
+                }
+
+                if (XCord.getConfig().getLoginAntiVpnEnabled()
+                    && (XCord.getConfig().getLoginAntiVpnInitialConnectionCheckEnabled()
+                        || (XCord.getConfig().getLoginAntiVpnInitialConnectionCheckOnlyDuringBotAttack()
+                            && XCord.getAntiBotManager().isAttackActive()))) {
+                    ProxyResult result = XCord.getAntiProxyManager().check("NA", hostAddress, true);
+                    if (result == ProxyResult.DETECTED) {
+                        if (XCord.getConfig().getLoginAntiVpnBlacklistOnDetection()
+                            || (XCord.getConfig().getLoginAntiVpnOnlyBlacklistOnDetectionDuringAttack()
+                                && XCord.getAntiBotManager().isAttackActive())) {
+                            XCord.getBlacklistManager().isBlacklisted(address);
+                        }
+                        PipelineUtils.CHANNEL_UTILITY.close(channel);
+                        return;
+                    }
+
+                    if (result == null && !XCord.getConfig().getLoginAntiVpnInitialConnectionCheckCacheOnly()) {
+                        XCord.getAsyncJobService().submit(new ProxyCheckJob("NA", hostAddress, (proxyResult, throwable) -> {
+                            if (channel.isActive() && proxyResult == ProxyResult.DETECTED) {
+                                channel.eventLoop().execute(() -> {
+                                    if (channel.isActive()) {
+                                        PipelineUtils.CHANNEL_UTILITY.close(channel);
+                                    }
+                                });
+                            }
+                        }));
+                    }
+                }
             }
-         }
-      }
 
-      public void exceptionCaught(ChannelHandlerContext var1, Throwable var2) throws Exception {
-         PipelineUtils.CHANNEL_UTILITY.close(var1.channel());
-      }
-   };
-   public static final PipelineUtils.Base BASE = new PipelineUtils.Base();
-   public static final PipelineUtils.Base CLIENT_BASE = new PipelineUtils.Base(true);
-   private static final KickStringWriter legacyKicker = new KickStringWriter();
-   public static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
-   public static final String TIMEOUT_HANDLER = "timeout";
-   public static final String PACKET_DECODER = "packet-decoder";
-   public static final String PACKET_ENCODER = "packet-encoder";
-   public static final String BOSS_HANDLER = "inbound-boss";
-   public static final String ENCRYPT_HANDLER = "encrypt";
-   public static final String DECRYPT_HANDLER = "decrypt";
-   public static final String FRAME_DECODER = "frame-decoder";
-   public static final String FRAME_PREPENDER = "frame-prepender";
-   public static final String LEGACY_DECODER = "legacy-decoder";
-   public static final String LEGACY_KICKER = "legacy-kick";
-   private static boolean epoll;
-   public static SocketCheck CHANNEL_UTILITY;
-   private static final int LOW_MARK;
-   private static final int HIGH_MARK;
-   private static final WriteBufferWaterMark MARK;
+            ListenerInfo listener = channel.attr(PipelineUtils.LISTENER).get();
+            if (BungeeCord.getInstance().getPluginManager().getEventBus().isWatchedListenerActive(0)
+                && BungeeCord.getInstance().getPluginManager().callEvent(new ClientConnectEvent(remoteAddress, listener)).isCancelled()) {
+                PipelineUtils.CHANNEL_UTILITY.close(channel);
+                return;
+            }
 
-   public static boolean isPublicIP(InetAddress var0) {
-      return !var0.isAnyLocalAddress() && !var0.isLoopbackAddress();
-   }
+            Callback<ConnectionInitEvent> callback = (connectionInitEvent, throwable) -> {
+                if (connectionInitEvent != null && connectionInitEvent.isCancelled()) {
+                    PipelineUtils.CHANNEL_UTILITY.close(channel);
+                    return;
+                }
 
-   public static boolean usingEpoll() {
-      return epoll;
-   }
+                try {
+                    PipelineUtils.CLIENT_BASE.initChannel(channel);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    channel.close();
+                    return;
+                }
 
-   public static EventLoopGroup newEventLoopGroup(int var0, ThreadFactory var1) {
-      if (var1 != null) {
-         return (EventLoopGroup)(epoll ? new EpollEventLoopGroup(var0, var1) : new NioEventLoopGroup(var0, var1));
-      } else {
-         return (EventLoopGroup)(epoll ? new EpollEventLoopGroup(var0) : new NioEventLoopGroup(var0));
-      }
-   }
+                if (!XCord.getConfig().getAntiBotNullPingAndPingSpamDisableLegacyPings()) {
+                    channel.pipeline().addBefore(PipelineUtils.FRAME_DECODER, PipelineUtils.LEGACY_DECODER, new LegacyDecoder());
+                }
 
-   public static Class<? extends ServerChannel> getServerChannel(SocketAddress var0) {
-      if (var0 instanceof DomainSocketAddress) {
-         Preconditions.checkState(epoll, "Epoll required to have UNIX sockets");
-         return EpollServerDomainSocketChannel.class;
-      } else {
-         return epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
-      }
-   }
+                channel.pipeline().addAfter(
+                    PipelineUtils.FRAME_DECODER,
+                    PipelineUtils.PACKET_DECODER,
+                    new MinecraftDecoder(
+                        Protocol.HANDSHAKE,
+                        true,
+                        ProxyServer.getInstance().getProtocolVersion(),
+                        XCord.getConfig().getPerformanceOptimizationsDontCopyPackets()
+                    )
+                );
+                channel.pipeline().addAfter(
+                    PipelineUtils.FRAME_PREPENDER,
+                    PipelineUtils.PACKET_ENCODER,
+                    new MinecraftEncoder(Protocol.HANDSHAKE, true, ProxyServer.getInstance().getProtocolVersion())
+                );
+                channel.pipeline().addBefore(PipelineUtils.FRAME_PREPENDER, PipelineUtils.LEGACY_KICKER, PipelineUtils.legacyKicker);
 
-   public static Class<? extends Channel> getChannel(SocketAddress var0) {
-      if (var0 instanceof DomainSocketAddress) {
-         Preconditions.checkState(epoll, "Epoll required to have UNIX sockets");
-         return EpollDomainSocketChannel.class;
-      } else {
-         return epoll ? EpollSocketChannel.class : NioSocketChannel.class;
-      }
-   }
+                if (!XCord.getConfig().getAntiBotAntiHangEnabled()
+                    || (XCord.getConfig().getAntiBotAntiHangOnlyDuringBotAttack() && !XCord.getAntiBotManager().isAttackActive())) {
+                    PipelineUtils.setTimeoutHandler(channel, XCord.getConfig().getGeneralInitialTimeout());
+                } else {
+                    PipelineUtils.setTimeoutHandler(channel, XCord.getConfig().getAntiBotAntiHangForceTimeoutTime());
+                }
 
-   public static Class<? extends DatagramChannel> getDatagramChannel() {
-      return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
-   }
+                channel.pipeline().get(HandlerBoss.class).setHandler(new InitialHandler(BungeeCord.getInstance(), listener));
+                if (listener.isProxyProtocol()) {
+                    channel.pipeline().addFirst(new HAProxyMessageDecoder());
+                }
+            };
 
-   public static ChannelFactory<? extends DatagramChannel> getDatagramChannelFactory() {
-      return epoll ? EpollDatagramChannel::new : NioDatagramChannel::new;
-   }
+            if (BungeeCord.getInstance().getPluginManager().getEventBus().isWatchedListenerActive(1)) {
+                callback.done(null, null);
+            } else {
+                BungeeCord.getInstance().getPluginManager().callEvent(new ConnectionInitEvent(channel.remoteAddress(), listener, callback));
+            }
+        }
 
-   public static void setTimeoutHandler(Channel var0, long var1) {
-      if (var0.pipeline().get("timeout") != null) {
-         var0.pipeline()
-            .replace(
-               "timeout",
-               "timeout",
-               (ChannelHandler)(XCord.getConfig().getPerformanceOptimizationsUseOptimizedTimeoutHandler()
-                  ? new OptimizedReadTimeoutHandler(var1, TimeUnit.MILLISECONDS)
-                  : new ReadTimeoutHandler(var1, TimeUnit.MILLISECONDS))
-            );
-      }
-   }
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable throwable) throws Exception {
+            PipelineUtils.CHANNEL_UTILITY.close(ctx.channel());
+        }
+    };
+    public static final PipelineUtils.Base BASE = new PipelineUtils.Base();
+    public static final PipelineUtils.Base CLIENT_BASE = new PipelineUtils.Base(true);
+    private static final KickStringWriter legacyKicker = new KickStringWriter();
+    public static final Varint21LengthFieldPrepender framePrepender = new Varint21LengthFieldPrepender();
+    public static final String TIMEOUT_HANDLER = "timeout";
+    public static final String PACKET_DECODER = "packet-decoder";
+    public static final String PACKET_ENCODER = "packet-encoder";
+    public static final String BOSS_HANDLER = "inbound-boss";
+    public static final String ENCRYPT_HANDLER = "encrypt";
+    public static final String DECRYPT_HANDLER = "decrypt";
+    public static final String FRAME_DECODER = "frame-decoder";
+    public static final String FRAME_PREPENDER = "frame-prepender";
+    public static final String LEGACY_DECODER = "legacy-decoder";
+    public static final String LEGACY_KICKER = "legacy-kick";
+    private static boolean epoll;
+    public static SocketCheck CHANNEL_UTILITY;
+    private static final int LOW_MARK;
+    private static final int HIGH_MARK;
+    private static final WriteBufferWaterMark MARK;
 
-   static {
-      if (!PlatformDependent.isWindows() && Boolean.parseBoolean(System.getProperty("bungee.epoll", "true"))) {
-         ProxyServer.getInstance().getLogger().info("Not on Windows, attempting to use enhanced EpollEventLoop");
-         if (epoll = Epoll.isAvailable()) {
-            ProxyServer.getInstance().getLogger().info("Epoll is working, utilising it!");
-            CHANNEL_UTILITY = new EpollSocketCheck();
-         } else {
-            ProxyServer.getInstance()
-               .getLogger()
-               .log(Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception(Epoll.unavailabilityCause()));
+    public static boolean isPublicIP(InetAddress address) {
+        return !address.isAnyLocalAddress() && !address.isLoopbackAddress();
+    }
+
+    public static boolean usingEpoll() {
+        return epoll;
+    }
+
+    public static EventLoopGroup newEventLoopGroup(int threads, ThreadFactory factory) {
+        if (factory != null) {
+            return epoll ? new EpollEventLoopGroup(threads, factory) : new NioEventLoopGroup(threads, factory);
+        }
+        return epoll ? new EpollEventLoopGroup(threads) : new NioEventLoopGroup(threads);
+    }
+
+    public static Class<? extends ServerChannel> getServerChannel(SocketAddress address) {
+        if (address instanceof DomainSocketAddress) {
+            Preconditions.checkState(epoll, "Epoll required to have UNIX sockets");
+            return EpollServerDomainSocketChannel.class;
+        }
+        return epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+    }
+
+    public static Class<? extends Channel> getChannel(SocketAddress address) {
+        if (address instanceof DomainSocketAddress) {
+            Preconditions.checkState(epoll, "Epoll required to have UNIX sockets");
+            return EpollDomainSocketChannel.class;
+        }
+        return epoll ? EpollSocketChannel.class : NioSocketChannel.class;
+    }
+
+    public static Class<? extends DatagramChannel> getDatagramChannel() {
+        return epoll ? EpollDatagramChannel.class : NioDatagramChannel.class;
+    }
+
+    public static ChannelFactory<? extends DatagramChannel> getDatagramChannelFactory() {
+        return epoll ? EpollDatagramChannel::new : NioDatagramChannel::new;
+    }
+
+    public static void setTimeoutHandler(Channel channel, long timeout) {
+        if (channel.pipeline().get(PipelineUtils.TIMEOUT_HANDLER) != null) {
+            channel.pipeline()
+                .replace(
+                    PipelineUtils.TIMEOUT_HANDLER,
+                    PipelineUtils.TIMEOUT_HANDLER,
+                    XCord.getConfig().getPerformanceOptimizationsUseOptimizedTimeoutHandler()
+                        ? new OptimizedReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS)
+                        : new ReadTimeoutHandler(timeout, TimeUnit.MILLISECONDS)
+                );
+        }
+    }
+
+    static {
+        if (!PlatformDependent.isWindows() && Boolean.parseBoolean(System.getProperty("bungee.epoll", "true"))) {
+            ProxyServer.getInstance().getLogger().info("Not on Windows, attempting to use enhanced EpollEventLoop");
+            epoll = Epoll.isAvailable();
+            if (epoll) {
+                ProxyServer.getInstance().getLogger().info("Epoll is working, utilising it!");
+                CHANNEL_UTILITY = new EpollSocketCheck();
+            } else {
+                ProxyServer.getInstance()
+                    .getLogger()
+                    .log(Level.WARNING, "Epoll is not working, falling back to NIO: {0}", Util.exception(Epoll.unavailabilityCause()));
+                CHANNEL_UTILITY = new NioSocketCheck();
+            }
+        } else {
             CHANNEL_UTILITY = new NioSocketCheck();
-         }
-      } else {
-         CHANNEL_UTILITY = new NioSocketCheck();
-      }
+        }
 
-      LOW_MARK = Integer.getInteger("net.md_5.bungee.low_mark", 524288);
-      HIGH_MARK = Integer.getInteger("net.md_5.bungee.high_mark", 2097152);
-      MARK = new WriteBufferWaterMark(LOW_MARK, HIGH_MARK);
-   }
+        LOW_MARK = Integer.getInteger("net.md_5.bungee.low_mark", 524288);
+        HIGH_MARK = Integer.getInteger("net.md_5.bungee.high_mark", 2097152);
+        MARK = new WriteBufferWaterMark(LOW_MARK, HIGH_MARK);
+    }
 
-   public static final class Base extends ChannelInitializer<Channel> {
-      private final boolean fromClient;
+    public static final class Base extends ChannelInitializer<Channel> {
+        private final boolean fromClient;
 
-      public Base(boolean var1) {
-         this.fromClient = var1;
-      }
+        public Base(boolean fromClient) {
+            this.fromClient = fromClient;
+        }
 
-      public Base() {
-         this(false);
-      }
+        public Base() {
+            this(false);
+        }
 
-      public void initChannel(Channel var1) throws Exception {
-         try {
-            var1.config().setOption(ChannelOption.IP_TOS, 24);
-         } catch (ChannelException var3) {
-         }
+        @Override
+        public void initChannel(Channel channel) throws Exception {
+            try {
+                channel.config().setOption(ChannelOption.IP_TOS, 24);
+            } catch (ChannelException ignored) {
+            }
 
-         var1.config().setOption(ChannelOption.TCP_NODELAY, true);
-         var1.config().setWriteBufferWaterMark(PipelineUtils.MARK);
-         if (XCord.getConfig().getAntiDdosDuringLoginEnabled() && this.fromClient) {
-            var1.pipeline()
-               .addLast(
-                  "frame-decoder",
-                  new AntiDdosFrameDecoder(
-                     XCord.getConfig().getAntiDdosDuringLoginMaxBytesPerSecond(), XCord.getConfig().getAntiDdosDuringLoginMaxPacketsPerSecond()
-                  )
-               );
-         } else {
-            var1.pipeline().addLast("frame-decoder", new VarIntFrameDecoder());
-         }
+            channel.config().setOption(ChannelOption.TCP_NODELAY, true);
+            channel.config().setWriteBufferWaterMark(PipelineUtils.MARK);
+            if (XCord.getConfig().getAntiDdosDuringLoginEnabled() && this.fromClient) {
+                channel.pipeline()
+                    .addLast(
+                        PipelineUtils.FRAME_DECODER,
+                        new AntiDdosFrameDecoder(
+                            XCord.getConfig().getAntiDdosDuringLoginMaxBytesPerSecond(), XCord.getConfig().getAntiDdosDuringLoginMaxPacketsPerSecond()
+                        )
+                    );
+            } else {
+                channel.pipeline().addLast(PipelineUtils.FRAME_DECODER, new VarIntFrameDecoder());
+            }
 
-         var1.pipeline()
-            .addLast(
-               "timeout",
-               (ChannelHandler)(XCord.getConfig().getPerformanceOptimizationsUseOptimizedTimeoutHandler()
-                  ? new OptimizedReadTimeoutHandler((long)BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS)
-                  : new ReadTimeoutHandler((long)BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS))
-            );
-         var1.pipeline().addLast("frame-prepender", PipelineUtils.framePrepender);
-         var1.pipeline().addLast("inbound-boss", new HandlerBoss());
-      }
-   }
+            channel.pipeline()
+                .addLast(
+                    PipelineUtils.TIMEOUT_HANDLER,
+                    XCord.getConfig().getPerformanceOptimizationsUseOptimizedTimeoutHandler()
+                        ? new OptimizedReadTimeoutHandler(BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS)
+                        : new ReadTimeoutHandler(BungeeCord.getInstance().config.getTimeout(), TimeUnit.MILLISECONDS)
+                );
+            channel.pipeline().addLast(PipelineUtils.FRAME_PREPENDER, PipelineUtils.framePrepender);
+            channel.pipeline().addLast(PipelineUtils.BOSS_HANDLER, new HandlerBoss());
+        }
+    }
 }

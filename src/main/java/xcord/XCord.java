@@ -6,20 +6,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 import me.minebuilders.proxyfork.antiproxy.AntiProxyManager;
 import net.md_5.bungee.BungeeCord;
-import xcord.AntiBotManager;
-import xcord.AsyncJobService;
-import xcord.BlacklistManager;
-import xcord.CountryBlockService;
-import xcord.DosFilterBlacklist;
-import xcord.GlobalBlacklist;
-import xcord.LogFilter;
-import xcord.Messages;
-import xcord.ReloadableService;
-import xcord.TickableService;
-import xcord.XCordConfig;
+import xcord.antibot.AntiBotManager;
+import xcord.blacklist.BlacklistManager;
+import xcord.blacklist.DosFilterBlacklist;
+import xcord.blacklist.GlobalBlacklist;
+import xcord.config.XCordConfig;
+import xcord.country.CountryBlockService;
+import xcord.logging.LogFilter;
+import xcord.message.Messages;
+import xcord.service.AsyncJobService;
+import xcord.service.ReloadableService;
+import xcord.service.TickableService;
 
-public class XCord
-extends TimerTask {
+public class XCord extends TimerTask {
     private static XCord instance;
     private static XCordConfig config;
     private static BlacklistManager blacklistManager;
@@ -31,8 +30,8 @@ extends TimerTask {
     private static DosFilterBlacklist dosFilterBlacklist;
     private static boolean logFilterEnabled;
     private static volatile int tick;
-    private final List<TickableService> tickableServices = new ArrayList<TickableService>(3);
-    private final List<ReloadableService> reloadableServices = new ArrayList<ReloadableService>(2);
+    private final List<TickableService> tickableServices = new ArrayList<>(3);
+    private final List<ReloadableService> reloadableServices = new ArrayList<>(2);
 
     public XCord() {
         instance = this;
@@ -56,7 +55,7 @@ extends TimerTask {
         this.reloadableServices.add(dosFilterBlacklist);
         this.reloadableServices.add(new CountryBlockService());
         this.reload();
-        new Timer("bobproxy-base", true).scheduleAtFixedRate((TimerTask)this, XCord.getConfig().getGeneralBaseTick(), (long)XCord.getConfig().getGeneralBaseTick());
+        new Timer("bobproxy-base", true).scheduleAtFixedRate(this, XCord.getConfig().getGeneralBaseTick(), XCord.getConfig().getGeneralBaseTick());
         asyncJobService.start();
         BungeeCord.getInstance().getLogger().info("[~] XCord is waking up and checking the morning breeze...");
         System.out.println("XCord has started.");
@@ -106,12 +105,12 @@ extends TimerTask {
         return config;
     }
 
-    public static void setConfig(XCordConfig xCordConfig) {
-        config = xCordConfig;
+    public static void setConfig(XCordConfig newConfig) {
+        config = newConfig;
     }
 
-    public static void setMessages(Messages messages) {
-        XCord.messages = messages;
+    public static void setMessages(Messages newMessages) {
+        XCord.messages = newMessages;
     }
 
     public static boolean isLogFilterEnabled() {
@@ -134,26 +133,20 @@ extends TimerTask {
         return dosFilterBlacklist;
     }
 
-    public static void setLogFilterEnabled(boolean bl) {
-        logFilterEnabled = bl;
-        if (bl) {
+    public static void setLogFilterEnabled(boolean enabled) {
+        logFilterEnabled = enabled;
+        if (enabled) {
             BungeeCord.getInstance().getLogger().info("Now filtering logs/console...");
         } else {
             BungeeCord.getInstance().getLogger().info("No longer filtering logs/console...");
         }
     }
 
-    public static void log(String string, Object ... objectArray) {
-        BungeeCord.getInstance().getLogger().info(String.format(string, objectArray));
+    public static void log(String format, Object... args) {
+        BungeeCord.getInstance().getLogger().info(String.format(format, args));
     }
 
-    public static void log(String string) {
-        BungeeCord.getInstance().getLogger().info(string);
-    }
-
-    static {
-        logFilterEnabled = false;
-        tick = 0;
+    public static void log(String message) {
+        BungeeCord.getInstance().getLogger().info(message);
     }
 }
-

@@ -8,9 +8,9 @@ XCord Redux is a readable Java reconstruction of the XCord proxy jar, a
 Travertine/BungeeCord 1.19 fork. The obfuscated application classes were
 remapped, decompiled, reviewed, and rebuilt from source.
 
-The current working tree is the `unpolished-production-code` branch. It is the
-known-good reconstruction used for testing. A later `main` branch will contain
-the final naming and cleanup pass.
+The `main` branch contains the refactored source organized by domain. The
+`unpolished-production-code` branch preserves the working reconstruction that
+was used as the behavioral baseline.
 
 ## Status
 
@@ -45,6 +45,31 @@ the final naming and cleanup pass.
 - [Anti-VPN setup](docs/ANTIVPN.md)
 - [Testing notes](docs/TESTING.md)
 - [Provenance and licensing](docs/PROVENANCE.md)
+
+## Source layout
+
+The application code is grouped by domain under `src/main/java/xcord`:
+
+| Package | Contents |
+| --- | --- |
+| `xcord` | Proxy lifecycle, shared state, and injection annotations. |
+| `xcord.antibot` | Verification, bot checks, connection statistics, name checks. |
+| `xcord.antivpn` | Anti-VPN providers and asynchronous proxy checks. |
+| `xcord.blacklist` | Local/global/DoS blacklists and IPSet backends. |
+| `xcord.command` | XCord commands and subcommand dispatch. |
+| `xcord.config` | YAML configuration and updater. |
+| `xcord.country` | Country blocking. |
+| `xcord.logging` | Log filtering and Log4j protection. |
+| `xcord.message` | Message templates and kick messages. |
+| `xcord.network` | Compression, varints, sockets, DNS, and network hooks. |
+| `xcord.protocol` | Packet registries and packet transformations. |
+| `xcord.service` | Async/tickable/reloadable services. |
+| `xcord.storage` | Persisted maps. |
+| `xcord.util` | Process, string, and exception utilities. |
+
+BungeeCord-derived files remain in their upstream packages. The mapping files
+describe the decompilation/remap process; they are not build inputs for the
+refactored source layout.
 
 ## Build
 
@@ -143,10 +168,10 @@ starting the proxy. YAML files keep old keys and messages until they are edited.
 
 ## Branches and releases
 
-- `unpolished-production-code` is the first working branch. It is intentionally
-  close to the decompiled output and is the branch used for functional testing.
-- `main` will be created for the final polish pass: clearer variable names,
-  smaller methods, and general cleanup. That work is deliberately deferred.
+- `main` contains the refactored source: domain packages, descriptive names,
+  cleaned control flow, and no decompiler comments.
+- `unpolished-production-code` preserves the known-good baseline used for
+  behavioral comparison and testing.
 - Release tags such as `v1.0.0` build the jar and publish it as a GitHub
   release through `.github/workflows/release.yml`.
 

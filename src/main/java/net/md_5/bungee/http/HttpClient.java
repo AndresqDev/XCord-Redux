@@ -20,87 +20,94 @@ import java.util.concurrent.TimeUnit;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.netty.PipelineUtils;
-import xcord.DnsResolver;
+import xcord.network.DnsResolver;
 
 public class HttpClient {
-   public static final int TIMEOUT = 10000;
-   private static final Cache<String, InetAddress> addressCache = CacheBuilder.newBuilder().expireAfterWrite(1L, TimeUnit.MINUTES).build();
+    public static final int TIMEOUT = 10000;
+    private static final Cache<String, InetAddress> addressCache = CacheBuilder.newBuilder().expireAfterWrite(1L, TimeUnit.MINUTES).build();
 
-   public static void get(String var0, EventLoop var1, final Callback<String> var2) {
-      Preconditions.checkNotNull(var0, "url");
-      Preconditions.checkNotNull(var1, "eventLoop");
-      Preconditions.checkNotNull(var2, "callBack");
-      final URI var3 = URI.create(var0);
-      Preconditions.checkNotNull(var3.getScheme(), "scheme");
-      Preconditions.checkNotNull(var3.getHost(), "host");
-      boolean var4 = var3.getScheme().equals("https");
-      int var5 = var3.getPort();
-      if (var5 == -1) {
-         String var6 = var3.getScheme();
-         switch (var6) {
-            case "http":
-               var5 = 80;
-               break;
-            case "https":
-               var5 = 443;
-               break;
-            default:
-               throw new IllegalArgumentException("Unknown scheme " + var3.getScheme());
-         }
-      }
-
-      ChannelFutureListener var8 = new ChannelFutureListener() {
-         public void operationComplete(ChannelFuture var1) throws Exception {
-            if (var1.isSuccess()) {
-               String var2x = var3.getRawPath() + (var3.getRawQuery() == null ? "" : "?" + var3.getRawQuery());
-               DefaultHttpRequest var3x = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, var2x);
-               var3x.headers().set(HttpHeaderNames.HOST, var3.getHost());
-               var1.channel().writeAndFlush(var3x);
-            } else {
-               HttpClient.addressCache.invalidate(var3.getHost());
-               var2.done(null, var1.cause());
+    public static void get(String url, EventLoop eventLoop, final Callback<String> callback) {
+        Preconditions.checkNotNull(url, "url");
+        Preconditions.checkNotNull(eventLoop, "eventLoop");
+        Preconditions.checkNotNull(callback, "callBack");
+        final URI uri = URI.create(url);
+        Preconditions.checkNotNull(uri.getScheme(), "scheme");
+        Preconditions.checkNotNull(uri.getHost(), "host");
+        boolean ssl = uri.getScheme().equals("https");
+        int port = uri.getPort();
+        if (port == -1) {
+            switch (uri.getScheme()) {
+                case "http":
+                    port = 80;
+                    break;
+                case "https":
+                    port = 443;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown scheme " + uri.getScheme());
             }
-         }
-      };
-      if (ProxyServer.getInstance().getConfig().isUseNettyDnsResolver()) {
-         getWithNettyResolver(var1, var3, var5, var8, var2, var4);
-      } else {
-         getWithDefaultResolver(var1, var3, var5, var8, var2, var4);
-      }
-   }
+        }
 
-   private static void getWithNettyResolver(EventLoop var0, URI var1, int var2, ChannelFutureListener var3, Callback<String> var4, boolean var5) {
-      InetSocketAddress var6 = InetSocketAddress.createUnresolved(var1.getHost(), var2);
-      ((Bootstrap)((Bootstrap)((Bootstrap)((Bootstrap)new Bootstrap().channel(PipelineUtils.getChannel(null))).group(var0))
-               .handler(new HttpInitializer(var4, var5, var1.getHost(), var2)))
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000))
-         .resolver(DnsResolver.getResolverGroup())
-         .remoteAddress(var6)
-         .connect()
-         .addListener(var3);
-   }
+        ChannelFutureListener connectionListener = new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    String path = uri.getRawPath() + (uri.getRawQuery() == null ? "" : "?" + uri.getRawQuery());
+                    DefaultHttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path);
+                    request.headers().set(HttpHeaderNames.HOST, uri.getHost());
+                    future.channel().writeAndFlush(request);
+                } else {
+                    HttpClient.addressCache.invalidate(uri.getHost());
+                    callback.done(null, future.cause());
+                }
+            }
+        };
 
-   private static void getWithDefaultResolver(EventLoop var0, URI var1, int var2, ChannelFutureListener var3, Callback<String> var4, boolean var5) {
-      InetAddress var6 = (InetAddress)addressCache.getIfPresent(var1.getHost());
-      if (var6 == null) {
-         try {
-            var6 = InetAddress.getByName(var1.getHost());
-         } catch (UnknownHostException var8) {
-            var4.done(null, var8);
-            return;
-         }
+        if (ProxyServer.getInstance().getConfig().isUseNettyDnsResolver()) {
+            getWithNettyResolver(eventLoop, uri, port, connectionListener, callback, ssl);
+        } else {
+            getWithDefaultResolver(eventLoop, uri, port, connectionListener, callback, ssl);
+        }
+    }
 
-         addressCache.put(var1.getHost(), var6);
-      }
+    private static void getWithNettyResolver(
+        EventLoop eventLoop, URI uri, int port, ChannelFutureListener listener, Callback<String> callback, boolean ssl
+    ) {
+        Bootstrap bootstrap = new Bootstrap()
+            .channel(PipelineUtils.getChannel(null))
+            .group(eventLoop)
+            .handler(new HttpInitializer(callback, ssl, uri.getHost(), port))
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TIMEOUT);
+        bootstrap.resolver(DnsResolver.getResolverGroup())
+            .remoteAddress(InetSocketAddress.createUnresolved(uri.getHost(), port))
+            .connect()
+            .addListener(listener);
+    }
 
-      ((Bootstrap)((Bootstrap)((Bootstrap)((Bootstrap)new Bootstrap().channel(PipelineUtils.getChannel(null))).group(var0))
-               .handler(new HttpInitializer(var4, var5, var1.getHost(), var2)))
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000))
-         .remoteAddress(var6, var2)
-         .connect()
-         .addListener(var3);
-   }
+    private static void getWithDefaultResolver(
+        EventLoop eventLoop, URI uri, int port, ChannelFutureListener listener, Callback<String> callback, boolean ssl
+    ) {
+        InetAddress address = addressCache.getIfPresent(uri.getHost());
+        if (address == null) {
+            try {
+                address = InetAddress.getByName(uri.getHost());
+            } catch (UnknownHostException ex) {
+                callback.done(null, ex);
+                return;
+            }
+            addressCache.put(uri.getHost(), address);
+        }
 
-   private HttpClient() {
-   }
+        Bootstrap bootstrap = new Bootstrap()
+            .channel(PipelineUtils.getChannel(null))
+            .group(eventLoop)
+            .handler(new HttpInitializer(callback, ssl, uri.getHost(), port))
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TIMEOUT);
+        bootstrap.remoteAddress(address, port)
+            .connect()
+            .addListener(listener);
+    }
+
+    private HttpClient() {
+    }
 }

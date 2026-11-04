@@ -19,16 +19,16 @@ extends Command {
             sender.sendMessage(ChatColor.RED + "This command can only be used by a player.");
             return;
         }
-        ProxiedPlayer player = (ProxiedPlayer)sender;
+        ProxiedPlayer player = (ProxiedPlayer) sender;
         if (args.length < 1) {
             player.sendMessage(ChatColor.RED + "Usage: /server <name>");
             return;
         }
-        ServerInfo info = ProxyServer.getInstance().getServerInfo(args[0]);
-        if (info == null) {
+        ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(args[0]);
+        if (serverInfo == null) {
             player.sendMessage(ChatColor.RED + "No such server: " + args[0]);
             return;
         }
-        player.connect(info);
+        player.connect(serverInfo);
     }
 }

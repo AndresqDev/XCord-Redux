@@ -5,30 +5,23 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import me.minebuilders.proxyfork.antiproxy.AntiProxyWhitelistManager;
-import me.minebuilders.proxyfork.antiproxy.ProxyCheckResult;
-import me.minebuilders.proxyfork.antiproxy.ProxyResult;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.api.plugin.Command;
-import xcord.BlackBoxApi;
-import xcord.IPHubApi;
-import xcord.PersistentMap;
-import xcord.ProcessUtils;
-import xcord.ProxyCheckApi;
-import xcord.ProxyCheckProvider;
-import xcord.ReloadableService;
-import xcord.SubCommandDispatcher;
-import xcord.TickableService;
-import xcord.WhitelistAddCommand;
-import xcord.WhitelistListCommand;
-import xcord.WhitelistRemoveCommand;
 import xcord.XCord;
+import xcord.antivpn.BlackBoxApi;
+import xcord.antivpn.IPHubApi;
+import xcord.antivpn.ProxyCheckApi;
+import xcord.antivpn.ProxyCheckProvider;
+import xcord.command.SubCommandDispatcher;
+import xcord.command.WhitelistAddCommand;
+import xcord.command.WhitelistListCommand;
+import xcord.command.WhitelistRemoveCommand;
+import xcord.service.ReloadableService;
+import xcord.service.TickableService;
+import xcord.storage.PersistentMap;
+import xcord.util.ProcessUtils;
 
-public class AntiProxyManager
-implements ReloadableService,
-TickableService {
+public class AntiProxyManager implements ReloadableService, TickableService {
     private final List<ProxyCheckProvider> providers = new ArrayList<ProxyCheckProvider>();
     private PersistentMap<Integer, ProxyCheckResult> cache;
     private AntiProxyWhitelistManager whitelist;
@@ -36,50 +29,37 @@ TickableService {
     private int saveInterval;
 
     public AntiProxyManager() {
-        Object object;
-        Object object2;
-        File file = new File("IPData.db");
+        File cacheFile = new File("IPData.db");
         this.saveInterval = XCord.getTick() + XCord.getConfig().getLoginAntiVpnSaveInterval();
-        if (file.isFile()) {
-            try {
-                object2 = new ObjectInputStream(new FileInputStream(file));
-                try {
-                    this.cache = (PersistentMap)((ObjectInputStream)object2).readObject();
-                    this.cache.setFile(file);
-                }
-                finally {
-                    ((ObjectInputStream)object2).close();
-                }
-            }
-            catch (Exception exception) {
-                file.delete();
-                this.cache = new PersistentMap();
+        if (cacheFile.isFile()) {
+            try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(cacheFile))) {
+                this.cache = (PersistentMap<Integer, ProxyCheckResult>)input.readObject();
+                this.cache.setFile(cacheFile);
+            } catch (Exception exception) {
+                cacheFile.delete();
+                this.cache = new PersistentMap<>();
             }
         } else {
-            this.cache = new PersistentMap(file);
+            this.cache = new PersistentMap<>(cacheFile);
         }
-        if (((File)(object2 = new File("antivpn-whitelist.db"))).isFile()) {
-            try {
-                object = new ObjectInputStream(new FileInputStream((File)object2));
-                try {
-                    this.whitelist = (AntiProxyWhitelistManager)((ObjectInputStream)object).readObject();
-                }
-                finally {
-                    ((ObjectInputStream)object).close();
-                }
-            }
-            catch (Exception exception) {
-                ((File)object2).delete();
-                this.whitelist = new AntiProxyWhitelistManager((File)object2);
+
+        File whitelistFile = new File("antivpn-whitelist.db");
+        if (whitelistFile.isFile()) {
+            try (ObjectInputStream input = new ObjectInputStream(new FileInputStream(whitelistFile))) {
+                this.whitelist = (AntiProxyWhitelistManager)input.readObject();
+            } catch (Exception exception) {
+                whitelistFile.delete();
+                this.whitelist = new AntiProxyWhitelistManager(whitelistFile);
             }
         } else {
-            this.whitelist = new AntiProxyWhitelistManager((File)object2);
+            this.whitelist = new AntiProxyWhitelistManager(whitelistFile);
         }
-        object = new SubCommandDispatcher("xvpn", "xcord.command.vpn", new String[0]);
-        ((SubCommandDispatcher)object).registerSubCommand("whitelist", new WhitelistAddCommand(this.whitelist));
-        ((SubCommandDispatcher)object).registerSubCommand("listwhitelisted", new WhitelistListCommand(this.whitelist));
-        ((SubCommandDispatcher)object).registerSubCommand("unwhitelist", new WhitelistRemoveCommand(this.whitelist));
-        BungeeCord.getInstance().getPluginManager().registerCommand(null, (Command)object);
+
+        SubCommandDispatcher dispatcher = new SubCommandDispatcher("xvpn", "xcord.command.vpn", new String[0]);
+        dispatcher.registerSubCommand("whitelist", new WhitelistAddCommand(this.whitelist));
+        dispatcher.registerSubCommand("listwhitelisted", new WhitelistListCommand(this.whitelist));
+        dispatcher.registerSubCommand("unwhitelist", new WhitelistRemoveCommand(this.whitelist));
+        BungeeCord.getInstance().getPluginManager().registerCommand(null, dispatcher);
     }
 
     @Override
@@ -96,50 +76,51 @@ TickableService {
         }
     }
 
-    public ProxyResult check(String string, String string2, boolean bl) {
-        int n = ProcessUtils.ipToInt(string2);
-        if (this.whitelist.isIPWhitelisted(n) || this.whitelist.isUsernameWhitelisted(string)) {
+    public ProxyResult check(String name, String ip, boolean cacheOnly) {
+        int ipValue = ProcessUtils.ipToInt(ip);
+        if (this.whitelist.isIPWhitelisted(ipValue) || this.whitelist.isUsernameWhitelisted(name)) {
             return ProxyResult.WHITELISTED;
         }
-        ProxyCheckResult proxyCheckResult = this.cache.get(n);
-        if (proxyCheckResult == null) {
-            ProxyCheckProvider proxyCheckProvider;
-            if (bl) {
+        ProxyCheckResult result = this.cache.get(ipValue);
+        if (result == null) {
+            if (cacheOnly) {
                 return null;
             }
-            Iterator<ProxyCheckProvider> iterator = this.providers.iterator();
-            while (iterator.hasNext() && (proxyCheckResult = (proxyCheckProvider = iterator.next()).check(string, string2)).getResult() != ProxyResult.DETECTED) {
+            for (ProxyCheckProvider provider : this.providers) {
+                result = provider.check(name, ip);
+                if (result.getResult() == ProxyResult.DETECTED) {
+                    break;
+                }
             }
-            if (proxyCheckResult == null) {
+            if (result == null) {
                 return ProxyResult.UNKNOWN;
             }
-            if (XCord.getConfig().getLoginAntiVpnLogNonCacheDetection() && proxyCheckResult.getResult() == ProxyResult.DETECTED) {
-                System.out.println("Detected proxy: IP=" + string2 + " USER=" + (string != null ? string : "NA") + " ASN=" + (proxyCheckResult.getAsn() != null ? proxyCheckResult.getAsn() : "NA") + " COUNTRY=" + (proxyCheckResult.getCountryCode() != null ? proxyCheckResult.getCountryCode() : "NA"));
+            if (XCord.getConfig().getLoginAntiVpnLogNonCacheDetection() && result.getResult() == ProxyResult.DETECTED) {
+                System.out.println("Detected proxy: IP=" + ip + " USER=" + (name != null ? name : "NA") + " ASN=" + (result.getAsn() != null ? result.getAsn() : "NA") + " COUNTRY=" + (result.getCountryCode() != null ? result.getCountryCode() : "NA"));
             }
-            this.cache.put(n, proxyCheckResult);
+            this.cache.put(ipValue, result);
         }
-        if (proxyCheckResult.getAsn() != null && XCord.getConfig().getBlockedAsns().contains(proxyCheckResult.getAsn())) {
+        if (result.getAsn() != null && XCord.getConfig().getBlockedAsns().contains(result.getAsn())) {
             return ProxyResult.DETECTED;
         }
-        if (proxyCheckResult.getCountryCode() != null && XCord.getConfig().getBlockedCountries().contains(proxyCheckResult.getCountryCode())) {
+        if (result.getCountryCode() != null && XCord.getConfig().getBlockedCountries().contains(result.getCountryCode())) {
             return ProxyResult.DETECTED;
         }
-        return proxyCheckResult.getResult();
+        return result.getResult();
     }
 
     @Override
-    public void tick(int n) {
-        if (n >= this.purgeInterval) {
-            this.purgeInterval = n + XCord.getConfig().getLoginAntiVpnPurgeInterval();
-            new Thread(() -> this.cache.getMap().entrySet().removeIf(entry -> ((ProxyCheckResult)entry.getValue()).getTimestamp() < System.currentTimeMillis() - XCord.getConfig().getLoginAntiVpnPurgeAge() * 1000L || ((ProxyCheckResult)entry.getValue()).getResult() == ProxyResult.UNKNOWN)).start();
-        } else if (n >= this.saveInterval) {
-            this.saveInterval = n + XCord.getConfig().getLoginAntiVpnSaveInterval();
+    public void tick(int currentTick) {
+        if (currentTick >= this.purgeInterval) {
+            this.purgeInterval = currentTick + XCord.getConfig().getLoginAntiVpnPurgeInterval();
+            new Thread(() -> this.cache.getMap().entrySet().removeIf(entry -> entry.getValue().getTimestamp() < System.currentTimeMillis() - XCord.getConfig().getLoginAntiVpnPurgeAge() * 1000L || entry.getValue().getResult() == ProxyResult.UNKNOWN)).start();
+        } else if (currentTick >= this.saveInterval) {
+            this.saveInterval = currentTick + XCord.getConfig().getLoginAntiVpnSaveInterval();
             new Thread(() -> {
                 try {
                     this.cache.save();
-                }
-                catch (IOException iOException) {
-                    iOException.printStackTrace();
+                } catch (IOException exception) {
+                    exception.printStackTrace();
                 }
             }).start();
         }
@@ -149,4 +130,3 @@ TickableService {
         return this.whitelist;
     }
 }
-

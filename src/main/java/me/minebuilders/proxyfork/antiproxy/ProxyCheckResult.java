@@ -4,11 +4,9 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import me.minebuilders.proxyfork.antiproxy.ProxyResult;
-import xcord.StringInterner;
+import xcord.util.StringInterner;
 
-public class ProxyCheckResult
-implements Externalizable {
+public class ProxyCheckResult implements Externalizable {
     private ProxyResult result;
     private String countryCode = null;
     private String asn = null;
@@ -34,32 +32,31 @@ implements Externalizable {
         return this.result;
     }
 
-    public void setResult(ProxyResult proxyResult) {
-        this.result = proxyResult;
+    public void setResult(ProxyResult result) {
+        this.result = result;
     }
 
-    public void setCountryCode(String string) {
-        this.countryCode = StringInterner.intern(string);
+    public void setCountryCode(String countryCode) {
+        this.countryCode = StringInterner.intern(countryCode);
     }
 
-    public void setAsn(String string) {
-        this.asn = StringInterner.intern(string);
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput objectOutput) throws IOException {
-        objectOutput.writeByte(this.result.ordinal());
-        objectOutput.writeUTF(this.countryCode);
-        objectOutput.writeUTF(this.asn);
-        objectOutput.writeLong(this.timestamp);
+    public void setAsn(String asn) {
+        this.asn = StringInterner.intern(asn);
     }
 
     @Override
-    public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
-        this.result = ProxyResult.values()[objectInput.readByte()];
-        this.countryCode = StringInterner.intern(objectInput.readUTF());
-        this.asn = StringInterner.intern(objectInput.readUTF());
-        this.timestamp = objectInput.readLong();
+    public void writeExternal(ObjectOutput output) throws IOException {
+        output.writeByte(this.result.ordinal());
+        output.writeUTF(this.countryCode);
+        output.writeUTF(this.asn);
+        output.writeLong(this.timestamp);
+    }
+
+    @Override
+    public void readExternal(ObjectInput input) throws IOException, ClassNotFoundException {
+        this.result = ProxyResult.values()[input.readByte()];
+        this.countryCode = StringInterner.intern(input.readUTF());
+        this.asn = StringInterner.intern(input.readUTF());
+        this.timestamp = input.readLong();
     }
 }
-

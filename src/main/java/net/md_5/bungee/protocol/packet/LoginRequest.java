@@ -6,133 +6,127 @@ import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import xcord.Log4jFilter;
+import xcord.logging.Log4jFilter;
 
 public class LoginRequest extends DefinedPacket {
-   private String data;
-   private PlayerPublicKey publicKey;
-   private UUID uuid;
+    private String data;
+    private PlayerPublicKey publicKey;
+    private UUID uuid;
 
-   @Override
-   public void read(ByteBuf var1, ProtocolConstants.Direction var2, int var3) {
-      this.data = Log4jFilter.a(readString(var1, 16));
-      if (var3 >= 759) {
-         this.publicKey = readPublicKey(var1);
-      }
+    public LoginRequest() {
+    }
 
-      if (var3 >= 760 && var1.readBoolean()) {
-         this.uuid = readUUID(var1);
-      }
-   }
+    public LoginRequest(String data, PlayerPublicKey publicKey, UUID uuid) {
+        this.data = data;
+        this.publicKey = publicKey;
+        this.uuid = uuid;
+    }
 
-   @Override
-   public void write(ByteBuf var1, ProtocolConstants.Direction var2, int var3) {
-      writeString(this.data, var1);
-      if (var3 >= 759) {
-         writePublicKey(this.publicKey, var1);
-      }
+    @Override
+    public void read(ByteBuf in, ProtocolConstants.Direction direction, int protocolVersion) {
+        this.data = Log4jFilter.filter(readString(in, 16));
+        if (protocolVersion >= 759) {
+            this.publicKey = readPublicKey(in);
+        }
+        if (protocolVersion >= 760 && in.readBoolean()) {
+            this.uuid = readUUID(in);
+        }
+    }
 
-      if (var3 >= 760) {
-         if (this.uuid != null) {
-            var1.writeBoolean(true);
-            writeUUID(this.uuid, var1);
-         } else {
-            var1.writeBoolean(false);
-         }
-      }
-   }
-
-   @Override
-   public void handle(AbstractPacketHandler var1) throws Exception {
-      var1.handle(this);
-   }
-
-   @Override
-   public int expectedMaxLength(ByteBuf var1, ProtocolConstants.Direction var2, int var3) {
-      return var3 >= 759 ? 90000 : 65;
-   }
-
-   public String getData() {
-      return this.data;
-   }
-
-   public PlayerPublicKey getPublicKey() {
-      return this.publicKey;
-   }
-
-   public UUID getUuid() {
-      return this.uuid;
-   }
-
-   public void setData(String var1) {
-      this.data = var1;
-   }
-
-   public void setPublicKey(PlayerPublicKey var1) {
-      this.publicKey = var1;
-   }
-
-   public void setUuid(UUID var1) {
-      this.uuid = var1;
-   }
-
-   @Override
-   public String toString() {
-      return "LoginRequest(data=" + this.getData() + ", publicKey=" + this.getPublicKey() + ", uuid=" + this.getUuid() + ")";
-   }
-
-   public LoginRequest() {
-   }
-
-   public LoginRequest(String var1, PlayerPublicKey var2, UUID var3) {
-      this.data = var1;
-      this.publicKey = var2;
-      this.uuid = var3;
-   }
-
-   @Override
-   public boolean equals(Object var1) {
-      if (var1 == this) {
-         return true;
-      } else if (!(var1 instanceof LoginRequest)) {
-         return false;
-      } else {
-         LoginRequest var2 = (LoginRequest)var1;
-         if (!var2.canEqual(this)) {
-            return false;
-         } else {
-            String var3 = this.getData();
-            String var4 = var2.getData();
-            if (var3 == null ? var4 == null : var3.equals(var4)) {
-               PlayerPublicKey var5 = this.getPublicKey();
-               PlayerPublicKey var6 = var2.getPublicKey();
-               if (var5 == null ? var6 == null : var5.equals(var6)) {
-                  UUID var7 = this.getUuid();
-                  UUID var8 = var2.getUuid();
-                  return var7 == null ? var8 == null : var7.equals(var8);
-               } else {
-                  return false;
-               }
+    @Override
+    public void write(ByteBuf out, ProtocolConstants.Direction direction, int protocolVersion) {
+        writeString(this.data, out);
+        if (protocolVersion >= 759) {
+            writePublicKey(this.publicKey, out);
+        }
+        if (protocolVersion >= 760) {
+            if (this.uuid != null) {
+                out.writeBoolean(true);
+                writeUUID(this.uuid, out);
             } else {
-               return false;
+                out.writeBoolean(false);
             }
-         }
-      }
-   }
+        }
+    }
 
-   protected boolean canEqual(Object var1) {
-      return var1 instanceof LoginRequest;
-   }
+    @Override
+    public void handle(AbstractPacketHandler handler) throws Exception {
+        handler.handle(this);
+    }
 
-   @Override
-   public int hashCode() {
-      byte var1 = 59;
-      int var2 = 1;
-      String var3 = this.getData();
-      var2 = var2 * 59 + (var3 == null ? 43 : var3.hashCode());
-      PlayerPublicKey var4 = this.getPublicKey();
-      var2 = var2 * 59 + (var4 == null ? 43 : var4.hashCode());
-      UUID var5 = this.getUuid();
-      return var2 * 59 + (var5 == null ? 43 : var5.hashCode());
-   }
+    @Override
+    public int expectedMaxLength(ByteBuf in, ProtocolConstants.Direction direction, int protocolVersion) {
+        return protocolVersion >= 759 ? 90000 : 65;
+    }
+
+    public String getData() {
+        return this.data;
+    }
+
+    public PlayerPublicKey getPublicKey() {
+        return this.publicKey;
+    }
+
+    public UUID getUuid() {
+        return this.uuid;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public void setPublicKey(PlayerPublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginRequest(data=" + this.getData() + ", publicKey=" + this.getPublicKey() + ", uuid=" + this.getUuid() + ")";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof LoginRequest)) {
+            return false;
+        }
+        LoginRequest request = (LoginRequest) other;
+        if (!request.canEqual(this)) {
+            return false;
+        }
+        String thisData = this.getData();
+        String otherData = request.getData();
+        if (!(thisData == null ? otherData == null : thisData.equals(otherData))) {
+            return false;
+        }
+        PlayerPublicKey thisPublicKey = this.getPublicKey();
+        PlayerPublicKey otherPublicKey = request.getPublicKey();
+        if (!(thisPublicKey == null ? otherPublicKey == null : thisPublicKey.equals(otherPublicKey))) {
+            return false;
+        }
+        UUID thisUuid = this.getUuid();
+        UUID otherUuid = request.getUuid();
+        return thisUuid == null ? otherUuid == null : thisUuid.equals(otherUuid);
+    }
+
+    protected boolean canEqual(Object other) {
+        return other instanceof LoginRequest;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        String data = this.getData();
+        result = result * 59 + (data == null ? 43 : data.hashCode());
+        PlayerPublicKey publicKey = this.getPublicKey();
+        result = result * 59 + (publicKey == null ? 43 : publicKey.hashCode());
+        UUID uuid = this.getUuid();
+        return result * 59 + (uuid == null ? 43 : uuid.hashCode());
+    }
 }

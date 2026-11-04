@@ -15,10 +15,10 @@ extends Command {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        String names = ProxyServer.getInstance().getPlayers().stream()
+        String playerNames = ProxyServer.getInstance().getPlayers().stream()
             .map(ProxiedPlayer::getName)
             .collect(Collectors.joining(", "));
         sender.sendMessage(ChatColor.GREEN + "Players (" + ProxyServer.getInstance().getPlayers().size() + "): "
-            + ChatColor.WHITE + (names.isEmpty() ? "(none)" : names));
+            + ChatColor.WHITE + (playerNames.isEmpty() ? "(none)" : playerNames));
     }
 }

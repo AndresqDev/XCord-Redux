@@ -23,8 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
@@ -69,589 +70,617 @@ import net.md_5.bungee.tab.TabList;
 import xcord.XCord;
 
 public class DownstreamBridge extends PacketHandler {
-   private static final Command DUMMY_COMMAND = var0 -> 0;
-   private final ProxyServer bungee;
-   private final UserConnection con;
-   private final ServerConnection server;
+    private static final Command DUMMY_COMMAND = context -> 0;
+    private final ProxyServer bungee;
+    private final UserConnection con;
+    private final ServerConnection server;
 
-   @Override
-   public void exception(Throwable var1) throws Exception {
-      if (!this.server.isObsolete()) {
-         if (XCord.getConfig().getDebugOutputDownstreamErrors()) {
-            var1.printStackTrace();
-         }
+    @Override
+    public void exception(Throwable throwable) throws Exception {
+        if (!this.server.isObsolete()) {
+            if (XCord.getConfig().getDebugOutputDownstreamErrors()) {
+                throwable.printStackTrace();
+            }
 
-         ServerInfo var2 = this.con.updateAndGetNextServer(this.server.getInfo());
-         ServerKickEvent var3 = this.bungee
-            .getPluginManager()
-            .callEvent(
-               new ServerKickEvent(
-                  this.con,
-                  this.server.getInfo(),
-                  TextComponent.fromLegacyText(this.bungee.getTranslation("server_went_down")),
-                  var2,
-                  ServerKickEvent.State.CONNECTED,
-                  ServerKickEvent.Cause.EXCEPTION
-               )
+            ServerInfo nextServer = this.con.updateAndGetNextServer(this.server.getInfo());
+            ServerKickEvent kickEvent = this.bungee.getPluginManager().callEvent(
+                    new ServerKickEvent(
+                            this.con,
+                            this.server.getInfo(),
+                            TextComponent.fromLegacyText(this.bungee.getTranslation("server_went_down")),
+                            nextServer,
+                            ServerKickEvent.State.CONNECTED,
+                            ServerKickEvent.Cause.EXCEPTION
+                    )
             );
-         if (var3.isCancelled() && var3.getCancelServer() != null) {
-            this.server.setObsolete(true);
-            this.con.connectNow(var3.getCancelServer(), ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT);
-         } else {
-            this.con.disconnect0(var3.getKickReasonComponent());
-         }
-      }
-   }
+            if (kickEvent.isCancelled() && kickEvent.getCancelServer() != null) {
+                this.server.setObsolete(true);
+                this.con.connectNow(kickEvent.getCancelServer(), ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT);
+            } else {
+                this.con.disconnect0(kickEvent.getKickReasonComponent());
+            }
+        }
+    }
 
-   @Override
-   public void disconnected(ChannelWrapper var1) throws Exception {
-      this.server.getInfo().removePlayer(this.con);
-      if (this.bungee.getReconnectHandler() != null) {
-         this.bungee.getReconnectHandler().setServer(this.con);
-      }
+    @Override
+    public void disconnected(ChannelWrapper channel) throws Exception {
+        this.server.getInfo().removePlayer(this.con);
+        if (this.bungee.getReconnectHandler() != null) {
+            this.bungee.getReconnectHandler().setServer(this.con);
+        }
 
-      if (!this.server.isObsolete()) {
-         ServerInfo var2 = this.con.updateAndGetNextServer(this.server.getInfo());
-         ServerKickEvent var3 = this.bungee
-            .getPluginManager()
-            .callEvent(
-               new ServerKickEvent(
-                  this.con,
-                  this.server.getInfo(),
-                  TextComponent.fromLegacyText(this.bungee.getTranslation("lost_connection")),
-                  var2,
-                  ServerKickEvent.State.CONNECTED,
-                  ServerKickEvent.Cause.LOST_CONNECTION
-               )
+        if (!this.server.isObsolete()) {
+            ServerInfo nextServer = this.con.updateAndGetNextServer(this.server.getInfo());
+            ServerKickEvent kickEvent = this.bungee.getPluginManager().callEvent(
+                    new ServerKickEvent(
+                            this.con,
+                            this.server.getInfo(),
+                            TextComponent.fromLegacyText(this.bungee.getTranslation("lost_connection")),
+                            nextServer,
+                            ServerKickEvent.State.CONNECTED,
+                            ServerKickEvent.Cause.LOST_CONNECTION
+                    )
             );
-         if (var3.isCancelled() && var3.getCancelServer() != null) {
-            this.server.setObsolete(true);
-            this.con.connectNow(var3.getCancelServer());
-         } else {
-            this.con.disconnect0(var3.getKickReasonComponent());
-         }
-      }
-
-      ServerDisconnectEvent var4 = new ServerDisconnectEvent(this.con, this.server.getInfo());
-      this.bungee.getPluginManager().callEvent(var4);
-   }
-
-   @Override
-   public boolean shouldHandle(PacketWrapper var1) throws Exception {
-      return !this.server.isObsolete();
-   }
-
-   @Override
-   public void handle(PacketWrapper var1) throws Exception {
-      EntityMap var2 = this.con.getEntityRewrite();
-      if (var2 != null) {
-         var2.rewriteClientbound(var1.buf, this.con.getServerEntityId(), this.con.getClientEntityId(), this.con.getPendingConnection().getVersion());
-      }
-
-      this.con.appendBufferedPacket(var1);
-   }
-
-   @Override
-   public void readCompleted() throws Exception {
-      this.con.flush();
-   }
-
-   @Override
-   public void handle(KeepAlive var1) throws Exception {
-      int var2 = this.bungee.getConfig().getTimeout();
-      if (var2 <= 0 || this.server.getKeepAlives().size() < var2 / 50) {
-         this.server.getKeepAlives().add(new ServerConnection.KeepAliveData(var1.getRandomId(), System.currentTimeMillis()));
-      }
-   }
-
-   @Override
-   public void handle(PlayerListItem var1) throws Exception {
-      boolean var2 = this.bungee.getConfig().isDisableTabListRewrite();
-      this.con.getTabListHandler().onUpdate(var2 ? var1 : TabList.rewrite(var1));
-      if (!var2) {
-         throw CancelSendSignal.INSTANCE;
-      }
-   }
-
-   @Override
-   public void handle(ScoreboardObjective var1) throws Exception {
-      if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
-         Scoreboard var2 = this.con.getServerSentScoreboard();
-         switch (var1.getAction()) {
-            case 0:
-               var2.addObjective(new Objective(var1.getName(), var1.getValue(), var1.getType() != null ? var1.getType().toString() : null));
-               break;
-            case 1:
-               var2.removeObjective(var1.getName());
-               break;
-            case 2:
-               Objective var3 = var2.getObjective(var1.getName());
-               if (var3 != null) {
-                  var3.setValue(var1.getValue());
-                  var3.setType(var1.getType() != null ? var1.getType().toString() : null);
-               }
-               break;
-            default:
-               throw new IllegalArgumentException("Unknown objective action: " + var1.getAction());
-         }
-      }
-   }
-
-   @Override
-   public void handle(ScoreboardScore var1) throws Exception {
-      if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
-         Scoreboard var2 = this.con.getServerSentScoreboard();
-         switch (var1.getAction()) {
-            case 0:
-               Score var3 = new Score(var1.getItemName(), var1.getScoreName(), var1.getValue());
-               var2.removeScore(var1.getItemName());
-               var2.addScore(var3);
-               break;
-            case 1:
-               var2.removeScore(var1.getItemName());
-               break;
-            default:
-               throw new IllegalArgumentException("Unknown scoreboard action: " + var1.getAction());
-         }
-      }
-   }
-
-   @Override
-   public void handle(ScoreboardDisplay var1) throws Exception {
-      if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
-         Scoreboard var2 = this.con.getServerSentScoreboard();
-         var2.setName(var1.getName());
-         var2.setPosition(Position.values()[var1.getPosition()]);
-      }
-   }
-
-   @Override
-   public void handle(Team var1) throws Exception {
-      if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
-         Scoreboard var2 = this.con.getServerSentScoreboard();
-         if (var1.getMode() == 1) {
-            var2.removeTeam(var1.getName());
-         } else {
-            net.md_5.bungee.api.score.Team var3;
-            if (var1.getMode() == 0) {
-               var3 = new net.md_5.bungee.api.score.Team(var1.getName());
-               var2.addTeam(var3);
+            if (kickEvent.isCancelled() && kickEvent.getCancelServer() != null) {
+                this.server.setObsolete(true);
+                this.con.connectNow(kickEvent.getCancelServer());
             } else {
-               var3 = var2.getTeam(var1.getName());
+                this.con.disconnect0(kickEvent.getKickReasonComponent());
             }
+        }
 
-            if (var3 != null) {
-               if (var1.getMode() == 0 || var1.getMode() == 2) {
-                  var3.setDisplayName(var1.getDisplayName());
-                  var3.setPrefix(var1.getPrefix());
-                  var3.setSuffix(var1.getSuffix());
-                  var3.setFriendlyFire(var1.getFriendlyFire());
-                  var3.setNameTagVisibility(var1.getNameTagVisibility());
-                  var3.setCollisionRule(var1.getCollisionRule());
-                  var3.setColor(var1.getColor());
-               }
+        ServerDisconnectEvent disconnectEvent = new ServerDisconnectEvent(this.con, this.server.getInfo());
+        this.bungee.getPluginManager().callEvent(disconnectEvent);
+    }
 
-               if (var1.getPlayers() != null) {
-                  for (String var7 : var1.getPlayers()) {
-                     if (var1.getMode() == 0 || var1.getMode() == 3) {
-                        var3.addPlayer(var7);
-                     } else if (var1.getMode() == 4) {
-                        var3.removePlayer(var7);
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
+    @Override
+    public boolean shouldHandle(PacketWrapper packet) throws Exception {
+        return !this.server.isObsolete();
+    }
 
-   @Override
-   public void handle(PluginMessage var1) throws Exception {
-      PluginMessageEvent var2 = new PluginMessageEvent(this.server, this.con, var1.getTag(), (byte[])var1.getData().clone());
-      if (this.bungee.getPluginManager().callEvent(var2).isCancelled()) {
-         throw CancelSendSignal.INSTANCE;
-      } else if (var1.getTag().equals(this.con.getPendingConnection().getVersion() >= 393 ? "minecraft:brand" : "MC|Brand")) {
-         if (ProtocolConstants.isAfterOrEq(this.con.getPendingConnection().getVersion(), 47)) {
-            try {
-               ByteBuf var14 = Unpooled.wrappedBuffer(var1.getData());
-               String var16 = DefinedPacket.readString(var14);
-               var14.release();
-               var14 = ByteBufAllocator.DEFAULT.heapBuffer();
-               DefinedPacket.writeString(XCord.getConfig().getGeneralXCord(), var14);
-               var1.setData(var14);
-               var14.release();
-            } catch (Exception var13) {
-               return;
-            }
-         } else {
-            var1.setData(XCord.getConfig().getGeneralXCord().getBytes(StandardCharsets.UTF_8));
-         }
+    @Override
+    public void handle(PacketWrapper packet) throws Exception {
+        EntityMap entityMap = this.con.getEntityRewrite();
+        if (entityMap != null) {
+            entityMap.rewriteClientbound(
+                    packet.buf,
+                    this.con.getServerEntityId(),
+                    this.con.getClientEntityId(),
+                    this.con.getPendingConnection().getVersion()
+            );
+        }
 
-         this.con.unsafe().sendPacket(var1);
-         throw CancelSendSignal.INSTANCE;
-      } else if (var1.getTag().equals("BungeeCord")) {
-         DataInput var3 = var1.getStream();
-         ByteArrayDataOutput var4 = ByteStreams.newDataOutput();
-         String var5 = var3.readUTF();
-         if (var5.equals("ForwardToPlayer")) {
-            ProxiedPlayer var6 = this.bungee.getPlayer(var3.readUTF());
-            if (var6 != null) {
-               String var7 = var3.readUTF();
-               short var8 = var3.readShort();
-               byte[] var9 = new byte[var8];
-               var3.readFully(var9);
-               var4.writeUTF(var7);
-               var4.writeShort(var9.length);
-               var4.write(var9);
-               byte[] var10 = var4.toByteArray();
-               var6.getServer().sendData("BungeeCord", var10);
-            }
+        this.con.appendBufferedPacket(packet);
+    }
 
-            var4 = null;
-         }
+    @Override
+    public void readCompleted() throws Exception {
+        this.con.flush();
+    }
 
-         if (var5.equals("Forward")) {
-            String var17 = var3.readUTF();
-            String var29 = var3.readUTF();
-            short var37 = var3.readShort();
-            byte[] var42 = new byte[var37];
-            var3.readFully(var42);
-            var4.writeUTF(var29);
-            var4.writeShort(var42.length);
-            var4.write(var42);
-            byte[] var45 = var4.toByteArray();
-            var4 = null;
-            if (var17.equals("ALL")) {
-               for (ServerInfo var12 : this.bungee.getServers().values()) {
-                  if (var12 != this.server.getInfo()) {
-                     var12.sendData("BungeeCord", var45);
-                  }
-               }
-            } else if (var17.equals("ONLINE")) {
-               for (ServerInfo var48 : this.bungee.getServers().values()) {
-                  if (var48 != this.server.getInfo()) {
-                     var48.sendData("BungeeCord", var45, false);
-                  }
-               }
-            } else {
-               ServerInfo var47 = this.bungee.getServerInfo(var17);
-               if (var47 != null) {
-                  var47.sendData("BungeeCord", var45);
-               }
-            }
-         }
+    @Override
+    public void handle(KeepAlive keepAlive) throws Exception {
+        int timeout = this.bungee.getConfig().getTimeout();
+        if (timeout <= 0 || this.server.getKeepAlives().size() < timeout / 50) {
+            this.server.getKeepAlives()
+                    .add(new ServerConnection.KeepAliveData(keepAlive.getRandomId(), System.currentTimeMillis()));
+        }
+    }
 
-         if (var5.equals("Connect")) {
-            ServerInfo var18 = this.bungee.getServerInfo(var3.readUTF());
-            if (var18 != null) {
-               this.con.connect(var18, ServerConnectEvent.Reason.PLUGIN_MESSAGE);
-            }
-         }
-
-         if (var5.equals("ConnectOther")) {
-            ProxiedPlayer var19 = this.bungee.getPlayer(var3.readUTF());
-            if (var19 != null) {
-               ServerInfo var30 = this.bungee.getServerInfo(var3.readUTF());
-               if (var30 != null) {
-                  var19.connect(var30);
-               }
-            }
-         }
-
-         if (var5.equals("IP")) {
-            var4.writeUTF("IP");
-            if (this.con.getSocketAddress() instanceof InetSocketAddress) {
-               var4.writeUTF(this.con.getAddress().getHostString());
-               var4.writeInt(this.con.getAddress().getPort());
-            } else {
-               var4.writeUTF("unix://" + ((DomainSocketAddress)this.con.getSocketAddress()).path());
-               var4.writeInt(0);
-            }
-         }
-
-         if (var5.equals("IPOther")) {
-            ProxiedPlayer var20 = this.bungee.getPlayer(var3.readUTF());
-            if (var20 != null) {
-               var4.writeUTF("IPOther");
-               var4.writeUTF(var20.getName());
-               if (var20.getSocketAddress() instanceof InetSocketAddress) {
-                  InetSocketAddress var31 = (InetSocketAddress)var20.getSocketAddress();
-                  var4.writeUTF(var31.getHostString());
-                  var4.writeInt(var31.getPort());
-               } else {
-                  var4.writeUTF("unix://" + ((DomainSocketAddress)var20.getSocketAddress()).path());
-                  var4.writeInt(0);
-               }
-            }
-         }
-
-         if (var5.equals("PlayerCount")) {
-            String var21 = var3.readUTF();
-            var4.writeUTF("PlayerCount");
-            if (var21.equals("ALL")) {
-               var4.writeUTF("ALL");
-               var4.writeInt(this.bungee.getOnlineCount());
-            } else {
-               ServerInfo var32 = this.bungee.getServerInfo(var21);
-               if (var32 != null) {
-                  var4.writeUTF(var32.getName());
-                  var4.writeInt(var32.getPlayers().size());
-               }
-            }
-         }
-
-         if (var5.equals("PlayerList")) {
-            String var22 = var3.readUTF();
-            var4.writeUTF("PlayerList");
-            if (var22.equals("ALL")) {
-               var4.writeUTF("ALL");
-               var4.writeUTF(Util.csv(this.bungee.getPlayers()));
-            } else {
-               ServerInfo var33 = this.bungee.getServerInfo(var22);
-               if (var33 != null) {
-                  var4.writeUTF(var33.getName());
-                  var4.writeUTF(Util.csv(var33.getPlayers()));
-               }
-            }
-         }
-
-         if (var5.equals("GetServers")) {
-            var4.writeUTF("GetServers");
-            var4.writeUTF(Util.csv(this.bungee.getServers().keySet()));
-         }
-
-         if (var5.equals("Message")) {
-            String var23 = var3.readUTF();
-            String var34 = var3.readUTF();
-            if (var23.equals("ALL")) {
-               for (ProxiedPlayer var43 : this.bungee.getPlayers()) {
-                  var43.sendMessage(var34);
-               }
-            } else {
-               ProxiedPlayer var39 = this.bungee.getPlayer(var23);
-               if (var39 != null) {
-                  var39.sendMessage(var34);
-               }
-            }
-         }
-
-         if (var5.equals("MessageRaw")) {
-            String var24 = var3.readUTF();
-            BaseComponent[] var35 = ComponentSerializer.parse(var3.readUTF());
-            if (var24.equals("ALL")) {
-               for (ProxiedPlayer var44 : this.bungee.getPlayers()) {
-                  var44.sendMessage(var35);
-               }
-            } else {
-               ProxiedPlayer var41 = this.bungee.getPlayer(var24);
-               if (var41 != null) {
-                  var41.sendMessage(var35);
-               }
-            }
-         }
-
-         if (var5.equals("GetServer")) {
-            var4.writeUTF("GetServer");
-            var4.writeUTF(this.server.getInfo().getName());
-         }
-
-         if (var5.equals("UUID")) {
-            var4.writeUTF("UUID");
-            var4.writeUTF(this.con.getUUID());
-         }
-
-         if (var5.equals("UUIDOther")) {
-            ProxiedPlayer var25 = this.bungee.getPlayer(var3.readUTF());
-            if (var25 != null) {
-               var4.writeUTF("UUIDOther");
-               var4.writeUTF(var25.getName());
-               var4.writeUTF(var25.getUUID());
-            }
-         }
-
-         if (var5.equals("ServerIP")) {
-            ServerInfo var26 = this.bungee.getServerInfo(var3.readUTF());
-            if (var26 != null && !var26.getAddress().isUnresolved()) {
-               var4.writeUTF("ServerIP");
-               var4.writeUTF(var26.getName());
-               var4.writeUTF(var26.getAddress().getAddress().getHostAddress());
-               var4.writeShort(var26.getAddress().getPort());
-            }
-         }
-
-         if (var5.equals("KickPlayer")) {
-            ProxiedPlayer var27 = this.bungee.getPlayer(var3.readUTF());
-            if (var27 != null) {
-               String var36 = var3.readUTF();
-               var27.disconnect(new TextComponent(var36));
-            }
-         }
-
-         if (var4 != null) {
-            byte[] var28 = var4.toByteArray();
-            if (var28.length != 0) {
-               this.server.sendData("BungeeCord", var28);
-            }
-         }
-
-         throw CancelSendSignal.INSTANCE;
-      }
-   }
-
-   @Override
-   public void handle(Kick var1) throws Exception {
-      ServerInfo var2 = this.con.updateAndGetNextServer(this.server.getInfo());
-      if (Objects.equals(this.server.getInfo(), var2)) {
-         var2 = null;
-      }
-
-      ServerKickEvent var3 = this.bungee
-         .getPluginManager()
-         .callEvent(
-            new ServerKickEvent(
-               this.con,
-               this.server.getInfo(),
-               ComponentSerializer.parse(var1.getMessage()),
-               var2,
-               ServerKickEvent.State.CONNECTED,
-               ServerKickEvent.Cause.SERVER
-            )
-         );
-      if (var3.isCancelled() && var3.getCancelServer() != null) {
-         this.con.connectNow(var3.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT);
-      } else {
-         this.con.disconnect0(var3.getKickReasonComponent());
-      }
-
-      this.server.setObsolete(true);
-      throw CancelSendSignal.INSTANCE;
-   }
-
-   @Override
-   public void handle(SetCompression var1) throws Exception {
-      this.server.getCh().setCompressionThreshold(var1.getThreshold());
-   }
-
-   @Override
-   public void handle(TabCompleteResponse var1) throws Exception {
-      List var2 = var1.getCommands();
-      if (var2 == null) {
-         var2 = Lists.transform(var1.getSuggestions().getList(), new Function<Suggestion, String>() {
-            public String apply(Suggestion var1) {
-               return var1.getText();
-            }
-         });
-      }
-
-      TabCompleteResponseEvent var3 = new TabCompleteResponseEvent(this.server, this.con, new ArrayList<>(var2));
-      if (!this.bungee.getPluginManager().callEvent(var3).isCancelled()) {
-         if (!var2.equals(var3.getSuggestions())) {
-            if (var1.getCommands() != null) {
-               var1.setCommands(var3.getSuggestions());
-            } else {
-               final StringRange var4 = var1.getSuggestions().getRange();
-               var1.setSuggestions(new Suggestions(var4, Lists.transform(var3.getSuggestions(), new Function<String, Suggestion>() {
-                  public Suggestion apply(String var1) {
-                     return new Suggestion(var4, var1);
-                  }
-               })));
-            }
-         }
-
-         this.con.unsafe().sendPacket(var1);
-      }
-
-      throw CancelSendSignal.INSTANCE;
-   }
-
-   @Override
-   public void handle(BossBar var1) {
-      switch (var1.getAction()) {
-         case 0:
-            this.con.getSentBossBars().add(var1.getUuid());
-            break;
-         case 1:
-            this.con.getSentBossBars().remove(var1.getUuid());
-      }
-   }
-
-   @Override
-   public void handle(EntityEffect var1) throws Exception {
-      if (!this.con.isDisableEntityMetadataRewrite()) {
-         if (this.con.getForgeClientHandler().isForgeUser() && !this.con.getForgeClientHandler().isHandshakeComplete()) {
+    @Override
+    public void handle(PlayerListItem playerListItem) throws Exception {
+        boolean disableTabListRewrite = this.bungee.getConfig().isDisableTabListRewrite();
+        this.con.getTabListHandler()
+                .onUpdate(disableTabListRewrite ? playerListItem : TabList.rewrite(playerListItem));
+        if (!disableTabListRewrite) {
             throw CancelSendSignal.INSTANCE;
-         } else {
-            this.con.getPotions().put(this.rewriteEntityId(var1.getEntityId()), var1.getEffectId());
-         }
-      }
-   }
+        }
+    }
 
-   @Override
-   public void handle(EntityRemoveEffect var1) throws Exception {
-      if (!this.con.isDisableEntityMetadataRewrite()) {
-         this.con.getPotions().remove(this.rewriteEntityId(var1.getEntityId()), var1.getEffectId());
-      }
-   }
+    @Override
+    public void handle(ScoreboardObjective scoreboardObjective) throws Exception {
+        if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
+            Scoreboard scoreboard = this.con.getServerSentScoreboard();
+            switch (scoreboardObjective.getAction()) {
+                case 0:
+                    scoreboard.addObjective(
+                            new Objective(
+                                    scoreboardObjective.getName(),
+                                    scoreboardObjective.getValue(),
+                                    scoreboardObjective.getType() != null ? scoreboardObjective.getType().toString() : null
+                            )
+                    );
+                    break;
+                case 1:
+                    scoreboard.removeObjective(scoreboardObjective.getName());
+                    break;
+                case 2:
+                    Objective objective = scoreboard.getObjective(scoreboardObjective.getName());
+                    if (objective != null) {
+                        objective.setValue(scoreboardObjective.getValue());
+                        objective.setType(
+                                scoreboardObjective.getType() != null ? scoreboardObjective.getType().toString() : null
+                        );
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown objective action: " + scoreboardObjective.getAction());
+            }
+        }
+    }
 
-   private int rewriteEntityId(int var1) {
-      return var1 == this.con.getServerEntityId() ? this.con.getClientEntityId() : var1;
-   }
+    @Override
+    public void handle(ScoreboardScore scoreboardScore) throws Exception {
+        if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
+            Scoreboard scoreboard = this.con.getServerSentScoreboard();
+            switch (scoreboardScore.getAction()) {
+                case 0:
+                    Score score = new Score(scoreboardScore.getItemName(), scoreboardScore.getScoreName(), scoreboardScore.getValue());
+                    scoreboard.removeScore(scoreboardScore.getItemName());
+                    scoreboard.addScore(score);
+                    break;
+                case 1:
+                    scoreboard.removeScore(scoreboardScore.getItemName());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown scoreboard action: " + scoreboardScore.getAction());
+            }
+        }
+    }
 
-   @Override
-   public void handle(Respawn var1) {
-      this.con.setDimension(var1.getDimension());
-   }
+    @Override
+    public void handle(ScoreboardDisplay scoreboardDisplay) throws Exception {
+        if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
+            Scoreboard scoreboard = this.con.getServerSentScoreboard();
+            scoreboard.setName(scoreboardDisplay.getName());
+            scoreboard.setPosition(Position.values()[scoreboardDisplay.getPosition()]);
+        }
+    }
 
-   @Override
-   public void handle(Commands var1) throws Exception {
-      boolean var2 = false;
-      HashMap var3 = new HashMap();
+    @Override
+    public void handle(Team team) throws Exception {
+        if (!XCord.getConfig().getPerformanceOptimizationsIgnoreScoreboardsAndDisableScoreboardApi()) {
+            Scoreboard scoreboard = this.con.getServerSentScoreboard();
+            if (team.getMode() == 1) {
+                scoreboard.removeTeam(team.getName());
+                return;
+            }
 
-      for (Entry var5 : this.bungee.getPluginManager().getCommands()) {
-         if (!this.bungee.getDisabledCommands().contains(var5.getKey())
-            && var1.getRoot().getChild((String)var5.getKey()) == null
-            && ((net.md_5.bungee.api.plugin.Command)var5.getValue()).hasPermission(this.con)) {
-            var3.put((String)var5.getKey(), (net.md_5.bungee.api.plugin.Command)var5.getValue());
-         }
-      }
+            net.md_5.bungee.api.score.Team scoreboardTeam;
+            if (team.getMode() == 0) {
+                scoreboardTeam = new net.md_5.bungee.api.score.Team(team.getName());
+                scoreboard.addTeam(scoreboardTeam);
+            } else {
+                scoreboardTeam = scoreboard.getTeam(team.getName());
+            }
 
-      ProxyDefineCommandsEvent var8 = new ProxyDefineCommandsEvent(this.server, this.con, var3);
-      this.bungee.getPluginManager().callEvent(var8);
+            if (scoreboardTeam != null) {
+                if (team.getMode() == 0 || team.getMode() == 2) {
+                    scoreboardTeam.setDisplayName(team.getDisplayName());
+                    scoreboardTeam.setPrefix(team.getPrefix());
+                    scoreboardTeam.setSuffix(team.getSuffix());
+                    scoreboardTeam.setFriendlyFire(team.getFriendlyFire());
+                    scoreboardTeam.setNameTagVisibility(team.getNameTagVisibility());
+                    scoreboardTeam.setCollisionRule(team.getCollisionRule());
+                    scoreboardTeam.setColor(team.getColor());
+                }
 
-      for (Entry var6 : var8.getCommands().entrySet()) {
-         CommandNode var7 = ((LiteralArgumentBuilder)LiteralArgumentBuilder.literal((String)var6.getKey()).executes(DUMMY_COMMAND))
-            .then(
-               RequiredArgumentBuilder.argument("args", StringArgumentType.greedyString())
-                  .suggests(Commands.SuggestionRegistry.ASK_SERVER)
-                  .executes(DUMMY_COMMAND)
-            )
-            .build();
-         var1.getRoot().addChild(var7);
-         var2 = true;
-      }
+                if (team.getPlayers() != null) {
+                    for (String player : team.getPlayers()) {
+                        if (team.getMode() == 0 || team.getMode() == 3) {
+                            scoreboardTeam.addPlayer(player);
+                        } else if (team.getMode() == 4) {
+                            scoreboardTeam.removePlayer(player);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-      if (var2) {
-         this.con.unsafe().sendPacket(var1);
-         throw CancelSendSignal.INSTANCE;
-      }
-   }
+    @Override
+    public void handle(PluginMessage pluginMessage) throws Exception {
+        PluginMessageEvent pluginMessageEvent = new PluginMessageEvent(
+                this.server, this.con, pluginMessage.getTag(), pluginMessage.getData().clone()
+        );
+        if (this.bungee.getPluginManager().callEvent(pluginMessageEvent).isCancelled()) {
+            throw CancelSendSignal.INSTANCE;
+        }
 
-   @Override
-   public void handle(ServerData var1) throws Exception {
-      var1.setMotd(null);
-      var1.setIcon(null);
-      this.con.unsafe().sendPacket(var1);
-      throw CancelSendSignal.INSTANCE;
-   }
+        if (pluginMessage.getTag()
+                .equals(this.con.getPendingConnection().getVersion() >= 393 ? "minecraft:brand" : "MC|Brand")) {
+            if (ProtocolConstants.isAfterOrEq(this.con.getPendingConnection().getVersion(), 47)) {
+                try {
+                    ByteBuf brandBuffer = Unpooled.wrappedBuffer(pluginMessage.getData());
+                    DefinedPacket.readString(brandBuffer);
+                    brandBuffer.release();
+                    brandBuffer = ByteBufAllocator.DEFAULT.heapBuffer();
+                    DefinedPacket.writeString(XCord.getConfig().getGeneralXCord(), brandBuffer);
+                    pluginMessage.setData(brandBuffer);
+                    brandBuffer.release();
+                } catch (Exception exception) {
+                    return;
+                }
+            } else {
+                pluginMessage.setData(XCord.getConfig().getGeneralXCord().getBytes(StandardCharsets.UTF_8));
+            }
 
-   @Override
-   public String toString() {
-      return "[" + this.con.getAddress() + "|" + this.con.getName() + "] <-> DownstreamBridge <-> [" + this.server.getInfo().getName() + "]";
-   }
+            this.con.unsafe().sendPacket(pluginMessage);
+            throw CancelSendSignal.INSTANCE;
+        }
 
-   public DownstreamBridge(ProxyServer var1, UserConnection var2, ServerConnection var3) {
-      this.bungee = var1;
-      this.con = var2;
-      this.server = var3;
-   }
+        if (!pluginMessage.getTag().equals("BungeeCord")) {
+            return;
+        }
+
+        DataInput input = pluginMessage.getStream();
+        ByteArrayDataOutput output = ByteStreams.newDataOutput();
+        String subChannel = input.readUTF();
+        if (subChannel.equals("ForwardToPlayer")) {
+            ProxiedPlayer target = this.bungee.getPlayer(input.readUTF());
+            if (target != null) {
+                String channel = input.readUTF();
+                short length = input.readShort();
+                byte[] data = new byte[length];
+                input.readFully(data);
+                output.writeUTF(channel);
+                output.writeShort(data.length);
+                output.write(data);
+                byte[] forwardedData = output.toByteArray();
+                target.getServer().sendData("BungeeCord", forwardedData);
+            }
+
+            output = null;
+        }
+
+        if (subChannel.equals("Forward")) {
+            String target = input.readUTF();
+            String channel = input.readUTF();
+            short length = input.readShort();
+            byte[] data = new byte[length];
+            input.readFully(data);
+            output.writeUTF(channel);
+            output.writeShort(data.length);
+            output.write(data);
+            byte[] forwardedData = output.toByteArray();
+            output = null;
+            if (target.equals("ALL")) {
+                for (ServerInfo serverInfo : this.bungee.getServers().values()) {
+                    if (serverInfo != this.server.getInfo()) {
+                        serverInfo.sendData("BungeeCord", forwardedData);
+                    }
+                }
+            } else if (target.equals("ONLINE")) {
+                for (ServerInfo serverInfo : this.bungee.getServers().values()) {
+                    if (serverInfo != this.server.getInfo()) {
+                        serverInfo.sendData("BungeeCord", forwardedData, false);
+                    }
+                }
+            } else {
+                ServerInfo serverInfo = this.bungee.getServerInfo(target);
+                if (serverInfo != null) {
+                    serverInfo.sendData("BungeeCord", forwardedData);
+                }
+            }
+        }
+
+        if (subChannel.equals("Connect")) {
+            ServerInfo serverInfo = this.bungee.getServerInfo(input.readUTF());
+            if (serverInfo != null) {
+                this.con.connect(serverInfo, ServerConnectEvent.Reason.PLUGIN_MESSAGE);
+            }
+        }
+
+        if (subChannel.equals("ConnectOther")) {
+            ProxiedPlayer player = this.bungee.getPlayer(input.readUTF());
+            if (player != null) {
+                ServerInfo serverInfo = this.bungee.getServerInfo(input.readUTF());
+                if (serverInfo != null) {
+                    player.connect(serverInfo);
+                }
+            }
+        }
+
+        if (subChannel.equals("IP")) {
+            output.writeUTF("IP");
+            if (this.con.getSocketAddress() instanceof InetSocketAddress) {
+                output.writeUTF(this.con.getAddress().getHostString());
+                output.writeInt(this.con.getAddress().getPort());
+            } else {
+                output.writeUTF("unix://" + ((DomainSocketAddress) this.con.getSocketAddress()).path());
+                output.writeInt(0);
+            }
+        }
+
+        if (subChannel.equals("IPOther")) {
+            ProxiedPlayer player = this.bungee.getPlayer(input.readUTF());
+            if (player != null) {
+                output.writeUTF("IPOther");
+                output.writeUTF(player.getName());
+                if (player.getSocketAddress() instanceof InetSocketAddress) {
+                    InetSocketAddress address = (InetSocketAddress) player.getSocketAddress();
+                    output.writeUTF(address.getHostString());
+                    output.writeInt(address.getPort());
+                } else {
+                    output.writeUTF("unix://" + ((DomainSocketAddress) player.getSocketAddress()).path());
+                    output.writeInt(0);
+                }
+            }
+        }
+
+        if (subChannel.equals("PlayerCount")) {
+            String target = input.readUTF();
+            output.writeUTF("PlayerCount");
+            if (target.equals("ALL")) {
+                output.writeUTF("ALL");
+                output.writeInt(this.bungee.getOnlineCount());
+            } else {
+                ServerInfo serverInfo = this.bungee.getServerInfo(target);
+                if (serverInfo != null) {
+                    output.writeUTF(serverInfo.getName());
+                    output.writeInt(serverInfo.getPlayers().size());
+                }
+            }
+        }
+
+        if (subChannel.equals("PlayerList")) {
+            String target = input.readUTF();
+            output.writeUTF("PlayerList");
+            if (target.equals("ALL")) {
+                output.writeUTF("ALL");
+                output.writeUTF(Util.csv(this.bungee.getPlayers()));
+            } else {
+                ServerInfo serverInfo = this.bungee.getServerInfo(target);
+                if (serverInfo != null) {
+                    output.writeUTF(serverInfo.getName());
+                    output.writeUTF(Util.csv(serverInfo.getPlayers()));
+                }
+            }
+        }
+
+        if (subChannel.equals("GetServers")) {
+            output.writeUTF("GetServers");
+            output.writeUTF(Util.csv(this.bungee.getServers().keySet()));
+        }
+
+        if (subChannel.equals("Message")) {
+            String target = input.readUTF();
+            String message = input.readUTF();
+            if (target.equals("ALL")) {
+                for (ProxiedPlayer player : this.bungee.getPlayers()) {
+                    player.sendMessage(message);
+                }
+            } else {
+                ProxiedPlayer player = this.bungee.getPlayer(target);
+                if (player != null) {
+                    player.sendMessage(message);
+                }
+            }
+        }
+
+        if (subChannel.equals("MessageRaw")) {
+            String target = input.readUTF();
+            BaseComponent[] message = ComponentSerializer.parse(input.readUTF());
+            if (target.equals("ALL")) {
+                for (ProxiedPlayer player : this.bungee.getPlayers()) {
+                    player.sendMessage(message);
+                }
+            } else {
+                ProxiedPlayer player = this.bungee.getPlayer(target);
+                if (player != null) {
+                    player.sendMessage(message);
+                }
+            }
+        }
+
+        if (subChannel.equals("GetServer")) {
+            output.writeUTF("GetServer");
+            output.writeUTF(this.server.getInfo().getName());
+        }
+
+        if (subChannel.equals("UUID")) {
+            output.writeUTF("UUID");
+            output.writeUTF(this.con.getUUID());
+        }
+
+        if (subChannel.equals("UUIDOther")) {
+            ProxiedPlayer player = this.bungee.getPlayer(input.readUTF());
+            if (player != null) {
+                output.writeUTF("UUIDOther");
+                output.writeUTF(player.getName());
+                output.writeUTF(player.getUUID());
+            }
+        }
+
+        if (subChannel.equals("ServerIP")) {
+            ServerInfo serverInfo = this.bungee.getServerInfo(input.readUTF());
+            if (serverInfo != null && !serverInfo.getAddress().isUnresolved()) {
+                output.writeUTF("ServerIP");
+                output.writeUTF(serverInfo.getName());
+                output.writeUTF(serverInfo.getAddress().getAddress().getHostAddress());
+                output.writeShort(serverInfo.getAddress().getPort());
+            }
+        }
+
+        if (subChannel.equals("KickPlayer")) {
+            ProxiedPlayer player = this.bungee.getPlayer(input.readUTF());
+            if (player != null) {
+                String reason = input.readUTF();
+                player.disconnect(new TextComponent(reason));
+            }
+        }
+
+        if (output != null) {
+            byte[] response = output.toByteArray();
+            if (response.length != 0) {
+                this.server.sendData("BungeeCord", response);
+            }
+        }
+
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(Kick kick) throws Exception {
+        ServerInfo nextServer = this.con.updateAndGetNextServer(this.server.getInfo());
+        if (Objects.equals(this.server.getInfo(), nextServer)) {
+            nextServer = null;
+        }
+
+        ServerKickEvent kickEvent = this.bungee.getPluginManager().callEvent(
+                new ServerKickEvent(
+                        this.con,
+                        this.server.getInfo(),
+                        ComponentSerializer.parse(kick.getMessage()),
+                        nextServer,
+                        ServerKickEvent.State.CONNECTED,
+                        ServerKickEvent.Cause.SERVER
+                )
+        );
+        if (kickEvent.isCancelled() && kickEvent.getCancelServer() != null) {
+            this.con.connectNow(kickEvent.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT);
+        } else {
+            this.con.disconnect0(kickEvent.getKickReasonComponent());
+        }
+
+        this.server.setObsolete(true);
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(SetCompression setCompression) throws Exception {
+        this.server.getCh().setCompressionThreshold(setCompression.getThreshold());
+    }
+
+    @Override
+    public void handle(TabCompleteResponse tabCompleteResponse) throws Exception {
+        List<String> commands = tabCompleteResponse.getCommands();
+        if (commands == null) {
+            commands = Lists.transform(
+                    tabCompleteResponse.getSuggestions().getList(), new Function<Suggestion, String>() {
+                        public String apply(Suggestion suggestion) {
+                            return suggestion.getText();
+                        }
+                    }
+            );
+        }
+
+        TabCompleteResponseEvent responseEvent = new TabCompleteResponseEvent(
+                this.server, this.con, new ArrayList<>(commands)
+        );
+        if (!this.bungee.getPluginManager().callEvent(responseEvent).isCancelled()) {
+            if (!commands.equals(responseEvent.getSuggestions())) {
+                if (tabCompleteResponse.getCommands() != null) {
+                    tabCompleteResponse.setCommands(responseEvent.getSuggestions());
+                } else {
+                    final StringRange range = tabCompleteResponse.getSuggestions().getRange();
+                    tabCompleteResponse.setSuggestions(
+                            new Suggestions(
+                                    range,
+                                    Lists.transform(responseEvent.getSuggestions(), new Function<String, Suggestion>() {
+                                        public Suggestion apply(String suggestion) {
+                                            return new Suggestion(range, suggestion);
+                                        }
+                                    })
+                            )
+                    );
+                }
+            }
+
+            this.con.unsafe().sendPacket(tabCompleteResponse);
+        }
+
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(BossBar bossBar) {
+        switch (bossBar.getAction()) {
+            case 0:
+                this.con.getSentBossBars().add(bossBar.getUuid());
+                break;
+            case 1:
+                this.con.getSentBossBars().remove(bossBar.getUuid());
+        }
+    }
+
+    @Override
+    public void handle(EntityEffect entityEffect) throws Exception {
+        if (!this.con.isDisableEntityMetadataRewrite()) {
+            if (this.con.getForgeClientHandler().isForgeUser() && !this.con.getForgeClientHandler().isHandshakeComplete()) {
+                throw CancelSendSignal.INSTANCE;
+            }
+
+            this.con.getPotions().put(this.rewriteEntityId(entityEffect.getEntityId()), entityEffect.getEffectId());
+        }
+    }
+
+    @Override
+    public void handle(EntityRemoveEffect entityRemoveEffect) throws Exception {
+        if (!this.con.isDisableEntityMetadataRewrite()) {
+            this.con.getPotions().remove(this.rewriteEntityId(entityRemoveEffect.getEntityId()), entityRemoveEffect.getEffectId());
+        }
+    }
+
+    private int rewriteEntityId(int entityId) {
+        return entityId == this.con.getServerEntityId() ? this.con.getClientEntityId() : entityId;
+    }
+
+    @Override
+    public void handle(Respawn respawn) {
+        this.con.setDimension(respawn.getDimension());
+    }
+
+    @Override
+    public void handle(Commands commandsPacket) throws Exception {
+        boolean hasNewCommands = false;
+        Map<String, net.md_5.bungee.api.plugin.Command> commands = new HashMap<>();
+
+        for (Entry<String, net.md_5.bungee.api.plugin.Command> entry : this.bungee.getPluginManager().getCommands()) {
+            if (!this.bungee.getDisabledCommands().contains(entry.getKey())
+                    && commandsPacket.getRoot().getChild(entry.getKey()) == null
+                    && entry.getValue().hasPermission(this.con)) {
+                commands.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        ProxyDefineCommandsEvent defineCommandsEvent = new ProxyDefineCommandsEvent(this.server, this.con, commands);
+        this.bungee.getPluginManager().callEvent(defineCommandsEvent);
+
+        for (Entry<String, net.md_5.bungee.api.plugin.Command> entry : defineCommandsEvent.getCommands().entrySet()) {
+            CommandNode node = LiteralArgumentBuilder.literal(entry.getKey()).executes(DUMMY_COMMAND)
+                    .then(
+                            RequiredArgumentBuilder.argument("args", StringArgumentType.greedyString())
+                                    .suggests(Commands.SuggestionRegistry.ASK_SERVER)
+                                    .executes(DUMMY_COMMAND)
+                    )
+                    .build();
+            commandsPacket.getRoot().addChild(node);
+            hasNewCommands = true;
+        }
+
+        if (hasNewCommands) {
+            this.con.unsafe().sendPacket(commandsPacket);
+            throw CancelSendSignal.INSTANCE;
+        }
+    }
+
+    @Override
+    public void handle(ServerData serverData) throws Exception {
+        serverData.setMotd(null);
+        serverData.setIcon(null);
+        this.con.unsafe().sendPacket(serverData);
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + this.con.getAddress() + "|" + this.con.getName() + "] <-> DownstreamBridge <-> [" + this.server.getInfo().getName() + "]";
+    }
+
+    public DownstreamBridge(ProxyServer bungee, UserConnection con, ServerConnection server) {
+        this.bungee = bungee;
+        this.con = con;
+        this.server = server;
+    }
 }

@@ -5,242 +5,261 @@ import io.netty.buffer.ByteBuf;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import xcord.Log4jFilter;
+import xcord.logging.Log4jFilter;
 
 public class ClientSettings extends MultiVersionPacketV17 {
-   private String locale;
-   private byte viewDistance;
-   private int chatFlags;
-   private boolean chatColours;
-   private byte difficulty;
-   private byte skinParts;
-   private int mainHand;
-   private boolean disableTextFiltering;
-   private boolean allowServerListing;
+    private String locale;
+    private byte viewDistance;
+    private int chatFlags;
+    private boolean chatColours;
+    private byte difficulty;
+    private byte skinParts;
+    private int mainHand;
+    private boolean disableTextFiltering;
+    private boolean allowServerListing;
 
-   public void v17Read(ByteBuf var1, ProtocolConstants.Direction var2, int var3) {
-      this.locale = Log4jFilter.a(var2, readString(var1));
-      this.viewDistance = var1.readByte();
-      this.chatFlags = var1.readUnsignedByte();
-      this.chatColours = var1.readBoolean();
-      this.skinParts = var1.readByte();
-      this.difficulty = var1.readByte();
-   }
+    public ClientSettings() {
+    }
 
-   public void read(ByteBuf var1, ProtocolConstants.Direction var2, int var3) {
-      this.locale = Log4jFilter.a(var2, readString(var1, 16));
-      this.viewDistance = var1.readByte();
-      this.chatFlags = var3 >= 107 ? DefinedPacket.readVarInt(var1) : var1.readUnsignedByte();
-      this.chatColours = var1.readBoolean();
-      this.skinParts = var1.readByte();
-      if (var3 >= 107) {
-         this.mainHand = DefinedPacket.readVarInt(var1);
-      }
+    public ClientSettings(
+        String locale,
+        byte viewDistance,
+        int chatFlags,
+        boolean chatColours,
+        byte difficulty,
+        byte skinParts,
+        int mainHand,
+        boolean disableTextFiltering,
+        boolean allowServerListing
+    ) {
+        this.locale = locale;
+        this.viewDistance = viewDistance;
+        this.chatFlags = chatFlags;
+        this.chatColours = chatColours;
+        this.difficulty = difficulty;
+        this.skinParts = skinParts;
+        this.mainHand = mainHand;
+        this.disableTextFiltering = disableTextFiltering;
+        this.allowServerListing = allowServerListing;
+    }
 
-      if (var3 >= 755) {
-         this.disableTextFiltering = var1.readBoolean();
-      }
+    @Override
+    public void v17Read(ByteBuf in, ProtocolConstants.Direction direction, int protocolVersion) {
+        this.locale = Log4jFilter.filter(direction, readString(in));
+        this.viewDistance = in.readByte();
+        this.chatFlags = in.readUnsignedByte();
+        this.chatColours = in.readBoolean();
+        this.skinParts = in.readByte();
+        this.difficulty = in.readByte();
+    }
 
-      if (var3 >= 757) {
-         this.allowServerListing = var1.readBoolean();
-      }
-   }
+    @Override
+    public void read(ByteBuf in, ProtocolConstants.Direction direction, int protocolVersion) {
+        this.locale = Log4jFilter.filter(direction, readString(in, 16));
+        this.viewDistance = in.readByte();
+        this.chatFlags = protocolVersion >= 107 ? DefinedPacket.readVarInt(in) : in.readUnsignedByte();
+        this.chatColours = in.readBoolean();
+        this.skinParts = in.readByte();
+        if (protocolVersion >= 107) {
+            this.mainHand = DefinedPacket.readVarInt(in);
+        }
+        if (protocolVersion >= 755) {
+            this.disableTextFiltering = in.readBoolean();
+        }
+        if (protocolVersion >= 757) {
+            this.allowServerListing = in.readBoolean();
+        }
+    }
 
-   public void write(ByteBuf var1, ProtocolConstants.Direction var2, int var3) {
-      writeString(this.locale, var1);
-      var1.writeByte(this.viewDistance);
-      if (var3 >= 107) {
-         DefinedPacket.writeVarInt(this.chatFlags, var1);
-      } else {
-         var1.writeByte(this.chatFlags);
-      }
+    @Override
+    public void write(ByteBuf out, ProtocolConstants.Direction direction, int protocolVersion) {
+        writeString(this.locale, out);
+        out.writeByte(this.viewDistance);
+        if (protocolVersion >= 107) {
+            DefinedPacket.writeVarInt(this.chatFlags, out);
+        } else {
+            out.writeByte(this.chatFlags);
+        }
+        out.writeBoolean(this.chatColours);
+        out.writeByte(this.skinParts);
+        if (protocolVersion >= 107) {
+            DefinedPacket.writeVarInt(this.mainHand, out);
+        }
+        if (protocolVersion >= 755) {
+            out.writeBoolean(this.disableTextFiltering);
+        }
+        if (protocolVersion >= 757) {
+            out.writeBoolean(this.allowServerListing);
+        }
+    }
 
-      var1.writeBoolean(this.chatColours);
-      var1.writeByte(this.skinParts);
-      if (var3 >= 107) {
-         DefinedPacket.writeVarInt(this.mainHand, var1);
-      }
+    @Override
+    public void v17Write(ByteBuf out, ProtocolConstants.Direction direction, int protocolVersion) {
+        writeString(this.locale, out);
+        out.writeByte(this.viewDistance);
+        out.writeByte(this.chatFlags);
+        out.writeBoolean(this.chatColours);
+        out.writeByte(this.skinParts);
+        out.writeByte(this.difficulty);
+    }
 
-      if (var3 >= 755) {
-         var1.writeBoolean(this.disableTextFiltering);
-      }
+    @Override
+    public void handle(AbstractPacketHandler handler) throws Exception {
+        handler.handle(this);
+    }
 
-      if (var3 >= 757) {
-         var1.writeBoolean(this.allowServerListing);
-      }
-   }
+    public String getLocale() {
+        return this.locale;
+    }
 
-   public void v17Write(ByteBuf var1, ProtocolConstants.Direction var2, int var3) {
-      writeString(this.locale, var1);
-      var1.writeByte(this.viewDistance);
-      var1.writeByte(this.chatFlags);
-      var1.writeBoolean(this.chatColours);
-      var1.writeByte(this.skinParts);
-      var1.writeByte(this.difficulty);
-   }
+    public byte getViewDistance() {
+        return this.viewDistance;
+    }
 
-   public void handle(AbstractPacketHandler var1) throws Exception {
-      var1.handle(this);
-   }
+    public int getChatFlags() {
+        return this.chatFlags;
+    }
 
-   public String getLocale() {
-      return this.locale;
-   }
+    public boolean isChatColours() {
+        return this.chatColours;
+    }
 
-   public byte getViewDistance() {
-      return this.viewDistance;
-   }
+    public byte getDifficulty() {
+        return this.difficulty;
+    }
 
-   public int getChatFlags() {
-      return this.chatFlags;
-   }
+    public byte getSkinParts() {
+        return this.skinParts;
+    }
 
-   public boolean isChatColours() {
-      return this.chatColours;
-   }
+    public int getMainHand() {
+        return this.mainHand;
+    }
 
-   public byte getDifficulty() {
-      return this.difficulty;
-   }
+    public boolean isDisableTextFiltering() {
+        return this.disableTextFiltering;
+    }
 
-   public byte getSkinParts() {
-      return this.skinParts;
-   }
+    public boolean isAllowServerListing() {
+        return this.allowServerListing;
+    }
 
-   public int getMainHand() {
-      return this.mainHand;
-   }
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
 
-   public boolean isDisableTextFiltering() {
-      return this.disableTextFiltering;
-   }
+    public void setViewDistance(byte viewDistance) {
+        this.viewDistance = viewDistance;
+    }
 
-   public boolean isAllowServerListing() {
-      return this.allowServerListing;
-   }
+    public void setChatFlags(int chatFlags) {
+        this.chatFlags = chatFlags;
+    }
 
-   public void setLocale(String var1) {
-      this.locale = var1;
-   }
+    public void setChatColours(boolean chatColours) {
+        this.chatColours = chatColours;
+    }
 
-   public void setViewDistance(byte var1) {
-      this.viewDistance = var1;
-   }
+    public void setDifficulty(byte difficulty) {
+        this.difficulty = difficulty;
+    }
 
-   public void setChatFlags(int var1) {
-      this.chatFlags = var1;
-   }
+    public void setSkinParts(byte skinParts) {
+        this.skinParts = skinParts;
+    }
 
-   public void setChatColours(boolean var1) {
-      this.chatColours = var1;
-   }
+    public void setMainHand(int mainHand) {
+        this.mainHand = mainHand;
+    }
 
-   public void setDifficulty(byte var1) {
-      this.difficulty = var1;
-   }
+    public void setDisableTextFiltering(boolean disableTextFiltering) {
+        this.disableTextFiltering = disableTextFiltering;
+    }
 
-   public void setSkinParts(byte var1) {
-      this.skinParts = var1;
-   }
+    public void setAllowServerListing(boolean allowServerListing) {
+        this.allowServerListing = allowServerListing;
+    }
 
-   public void setMainHand(int var1) {
-      this.mainHand = var1;
-   }
+    @Override
+    public String toString() {
+        return "ClientSettings(locale="
+            + this.getLocale()
+            + ", viewDistance="
+            + this.getViewDistance()
+            + ", chatFlags="
+            + this.getChatFlags()
+            + ", chatColours="
+            + this.isChatColours()
+            + ", difficulty="
+            + this.getDifficulty()
+            + ", skinParts="
+            + this.getSkinParts()
+            + ", mainHand="
+            + this.getMainHand()
+            + ", disableTextFiltering="
+            + this.isDisableTextFiltering()
+            + ", allowServerListing="
+            + this.isAllowServerListing()
+            + ")";
+    }
 
-   public void setDisableTextFiltering(boolean var1) {
-      this.disableTextFiltering = var1;
-   }
-
-   public void setAllowServerListing(boolean var1) {
-      this.allowServerListing = var1;
-   }
-
-   public String toString() {
-      return "ClientSettings(locale="
-         + this.getLocale()
-         + ", viewDistance="
-         + this.getViewDistance()
-         + ", chatFlags="
-         + this.getChatFlags()
-         + ", chatColours="
-         + this.isChatColours()
-         + ", difficulty="
-         + this.getDifficulty()
-         + ", skinParts="
-         + this.getSkinParts()
-         + ", mainHand="
-         + this.getMainHand()
-         + ", disableTextFiltering="
-         + this.isDisableTextFiltering()
-         + ", allowServerListing="
-         + this.isAllowServerListing()
-         + ")";
-   }
-
-   public ClientSettings() {
-   }
-
-   public ClientSettings(String var1, byte var2, int var3, boolean var4, byte var5, byte var6, int var7, boolean var8, boolean var9) {
-      this.locale = var1;
-      this.viewDistance = var2;
-      this.chatFlags = var3;
-      this.chatColours = var4;
-      this.difficulty = var5;
-      this.skinParts = var6;
-      this.mainHand = var7;
-      this.disableTextFiltering = var8;
-      this.allowServerListing = var9;
-   }
-
-   public boolean equals(Object var1) {
-      if (var1 == this) {
-         return true;
-      } else if (!(var1 instanceof ClientSettings)) {
-         return false;
-      } else {
-         ClientSettings var2 = (ClientSettings)var1;
-         if (!var2.canEqual(this)) {
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof ClientSettings)) {
             return false;
-         } else if (this.getViewDistance() != var2.getViewDistance()) {
+        }
+        ClientSettings settings = (ClientSettings) other;
+        if (!settings.canEqual(this)) {
             return false;
-         } else if (this.getChatFlags() != var2.getChatFlags()) {
+        }
+        if (this.getViewDistance() != settings.getViewDistance()) {
             return false;
-         } else if (this.isChatColours() != var2.isChatColours()) {
+        }
+        if (this.getChatFlags() != settings.getChatFlags()) {
             return false;
-         } else if (this.getDifficulty() != var2.getDifficulty()) {
+        }
+        if (this.isChatColours() != settings.isChatColours()) {
             return false;
-         } else if (this.getSkinParts() != var2.getSkinParts()) {
+        }
+        if (this.getDifficulty() != settings.getDifficulty()) {
             return false;
-         } else if (this.getMainHand() != var2.getMainHand()) {
+        }
+        if (this.getSkinParts() != settings.getSkinParts()) {
             return false;
-         } else if (this.isDisableTextFiltering() != var2.isDisableTextFiltering()) {
+        }
+        if (this.getMainHand() != settings.getMainHand()) {
             return false;
-         } else if (this.isAllowServerListing() != var2.isAllowServerListing()) {
+        }
+        if (this.isDisableTextFiltering() != settings.isDisableTextFiltering()) {
             return false;
-         } else {
-            String var3 = this.getLocale();
-            String var4 = var2.getLocale();
-            return var3 == null ? var4 == null : var3.equals(var4);
-         }
-      }
-   }
+        }
+        if (this.isAllowServerListing() != settings.isAllowServerListing()) {
+            return false;
+        }
+        String thisLocale = this.getLocale();
+        String otherLocale = settings.getLocale();
+        return thisLocale == null ? otherLocale == null : thisLocale.equals(otherLocale);
+    }
 
-   protected boolean canEqual(Object var1) {
-      return var1 instanceof ClientSettings;
-   }
+    protected boolean canEqual(Object other) {
+        return other instanceof ClientSettings;
+    }
 
-   public int hashCode() {
-      byte var1 = 59;
-      int var2 = 1;
-      var2 = var2 * 59 + this.getViewDistance();
-      var2 = var2 * 59 + this.getChatFlags();
-      var2 = var2 * 59 + (this.isChatColours() ? 79 : 97);
-      var2 = var2 * 59 + this.getDifficulty();
-      var2 = var2 * 59 + this.getSkinParts();
-      var2 = var2 * 59 + this.getMainHand();
-      var2 = var2 * 59 + (this.isDisableTextFiltering() ? 79 : 97);
-      var2 = var2 * 59 + (this.isAllowServerListing() ? 79 : 97);
-      String var3 = this.getLocale();
-      return var2 * 59 + (var3 == null ? 43 : var3.hashCode());
-   }
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = result * 59 + this.getViewDistance();
+        result = result * 59 + this.getChatFlags();
+        result = result * 59 + (this.isChatColours() ? 79 : 97);
+        result = result * 59 + this.getDifficulty();
+        result = result * 59 + this.getSkinParts();
+        result = result * 59 + this.getMainHand();
+        result = result * 59 + (this.isDisableTextFiltering() ? 79 : 97);
+        result = result * 59 + (this.isAllowServerListing() ? 79 : 97);
+        String locale = this.getLocale();
+        return result * 59 + (locale == null ? 43 : locale.hashCode());
+    }
 }

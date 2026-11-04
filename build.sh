@@ -22,10 +22,16 @@ mkdir -p "$CLASSES"
 
 mapfile -t SOURCES < <(
   find "$ROOT/src/main/java/xcord" "$ROOT/src/main/java/me" -name '*.java'
-  echo "$ROOT/src/main/java/net/md_5/bungee/BungeeCord.java"
-  echo "$ROOT/src/main/java/net/md_5/bungee/compress/CompressFactory.java"
-  echo "$ROOT/src/main/java/net/md_5/bungee/command/CommandList.java"
-  echo "$ROOT/src/main/java/net/md_5/bungee/command/CommandServer.java"
+  for file in \
+    BungeeCord.java BungeeCordLauncher.java BungeeServerInfo.java ServerConnector.java UserConnection.java \
+    command/CommandList.java command/CommandServer.java command/CommandResetBlacklist.java command/CommandXCordReload.java \
+    conf/YamlConfig.java connection/DownstreamBridge.java connection/InitialHandler.java connection/PingHandler.java connection/UpstreamBridge.java \
+    compress/CompressFactory.java http/HttpClient.java jni/zlib/XCordNativeZLib.java \
+    netty/ChannelWrapper.java netty/HandlerBoss.java netty/PipelineUtils.java \
+    protocol/MinecraftDecoder.java protocol/packet/Chat.java protocol/packet/ClientSettings.java protocol/packet/LoginRequest.java
+  do
+    echo "$ROOT/src/main/java/net/md_5/bungee/$file"
+  done
 )
 
 echo "Compiling ${#SOURCES[@]} Java files..."

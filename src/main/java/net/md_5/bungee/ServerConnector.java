@@ -7,7 +7,6 @@ import io.netty.buffer.ByteBufAllocator;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
@@ -59,508 +58,498 @@ import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 import net.md_5.bungee.util.AddressUtil;
 import net.md_5.bungee.util.QuietException;
-import xcord.Log4jFilter;
-import xcord.SpoofedServerConnection;
 import xcord.XCord;
+import xcord.logging.Log4jFilter;
+import xcord.network.SpoofedServerConnection;
 
 public class ServerConnector extends PacketHandler {
-   private final ProxyServer bungee;
-   private ChannelWrapper ch;
-   private final UserConnection user;
-   private final BungeeServerInfo target;
-   private ServerConnector.State thisState = ServerConnector.State.LOGIN_SUCCESS;
-   private ForgeServerHandler handshakeHandler;
-   private boolean obsolete;
+    private final ProxyServer bungee;
+    private ChannelWrapper ch;
+    private final UserConnection user;
+    private final BungeeServerInfo target;
+    private ServerConnector.State thisState = ServerConnector.State.LOGIN_SUCCESS;
+    private ForgeServerHandler handshakeHandler;
+    private boolean obsolete;
 
-   @Override
-   public void exception(Throwable var1) throws Exception {
-      if (!this.obsolete) {
-         Object var2 = "Exception Connecting:" + Util.exception(var1);
-         if (this.user.getServer() == null) {
-            this.user.disconnect((String)var2);
-         } else {
-            this.user.sendMessage(ChatColor.RED + var2);
-         }
-      }
-   }
-
-   @Override
-   public void connected(ChannelWrapper var1) throws Exception {
-      this.ch = var1;
-      this.handshakeHandler = new ForgeServerHandler(this.user, this.ch, this.target);
-      Handshake var2 = this.user.getPendingConnection().getHandshake();
-      Handshake var3 = new Handshake(var2.getProtocolVersion(), var2.getHost(), var2.getPort(), 2);
-      if (BungeeCord.getInstance().config.isIpForward() && this.user.getSocketAddress() instanceof InetSocketAddress) {
-         String var4 = var3.getHost() + "\u0000" + AddressUtil.sanitizeAddress(this.user.getAddress()) + "\u0000" + this.user.getUUID();
-         LoginResult var5 = this.user.getPendingConnection().getLoginProfile();
-         Property[] var6 = new Property[0];
-         if (var5 != null && var5.getProperties() != null && var5.getProperties().length > 0) {
-            var6 = var5.getProperties();
-         }
-
-         if ((!XCord.getConfig().getFixesFix17KickWhen18Joins() || this.user.getPendingConnection().getVersion() > 47)
-            && this.user.getForgeClientHandler().isFmlTokenInHandshake()) {
-            Property[] var7 = Arrays.copyOf(var6, var6.length + 2);
-            var7[var7.length - 2] = new Property("forgeClient", "true", null);
-            var7[var7.length - 1] = new Property("extraData", this.user.getExtraDataInHandshake().replaceAll("\u0000", "\u0001"), "");
-            var6 = var7;
-         }
-
-         if (var6.length > 0) {
-            var4 = var4 + "\u0000" + BungeeCord.getInstance().gson.toJson(var6);
-         }
-
-         Log4jFilter.a(var4);
-         var3.setHost(var4);
-      } else if (!this.user.getExtraDataInHandshake().isEmpty()) {
-         var3.setHost(var3.getHost() + this.user.getExtraDataInHandshake());
-      }
-
-      var1.write(var3);
-      var1.setProtocol(Protocol.LOGIN);
-      var1.write(new LoginRequest(this.user.getName(), null, this.user.getUniqueId()));
-   }
-
-   @Override
-   public void disconnected(ChannelWrapper var1) throws Exception {
-      this.user.getPendingConnects().remove(this.target);
-   }
-
-   @Override
-   public void handle(PacketWrapper var1) throws Exception {
-      if (var1.packet == null) {
-      }
-   }
-
-   @Override
-   public void handle(LoginSuccess var1) throws Exception {
-      Preconditions.checkState(this.thisState == ServerConnector.State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS");
-      this.ch.setProtocol(Protocol.GAME);
-      this.thisState = ServerConnector.State.LOGIN;
-      if ((this.user.getServer() != null || this.user.isPassedThroughSpoofedServer())
-         && this.user.getForgeClientHandler().isHandshakeComplete()
-         && this.user.getServer().isForgeServer()) {
-         this.user.getForgeClientHandler().resetHandshake();
-      }
-
-      throw CancelSendSignal.INSTANCE;
-   }
-
-   @Override
-   public void handle(SetCompression var1) throws Exception {
-      this.ch.setCompressionThreshold(var1.getThreshold());
-   }
-
-   @Override
-   public void handle(Login var1) throws Exception {
-      Preconditions.checkState(this.thisState == ServerConnector.State.LOGIN, "Not expecting LOGIN");
-      if (this.user.isJoinRequiresRewrite()) {
-         this.user.setEntityRewrite(EntityMap.getEntityMap(this.user.getPendingConnection().getVersion(), true));
-      }
-
-      ServerConnection var2 = new ServerConnection(this.ch, this.target);
-      ServerConnectedEvent var3 = new ServerConnectedEvent(this.user, var2);
-      if (var2.isForgeServer() && this.user.isForgeUser()) {
-         ((MinecraftDecoder)var2.getCh().getHandle().pipeline().get("packet-decoder")).setSupportsForge(true);
-         ((MinecraftDecoder)this.user.getCh().getHandle().pipeline().get("packet-decoder")).setSupportsForge(true);
-      }
-
-      this.bungee.getPluginManager().callEvent(var3);
-      this.ch.write(BungeeCord.getInstance().registerChannels(this.user.getPendingConnection().getVersion()));
-      Queue var4 = this.target.getPacketQueue();
-      synchronized (var4) {
-         while (!var4.isEmpty()) {
-            this.ch.write(var4.poll());
-         }
-      }
-
-      PluginMessage var5 = this.user.getPendingConnection().getBrandMessage();
-      if (var5 != null) {
-         this.ch.write(var5);
-      }
-
-      Set var6 = this.user.getPendingConnection().getRegisteredChannels();
-      if (!var6.isEmpty()) {
-         this.ch
-            .write(
-               new PluginMessage(
-                  this.user.getPendingConnection().getVersion() >= 393 ? "minecraft:register" : "REGISTER",
-                  Joiner.on("\u0000").join(var6).getBytes(StandardCharsets.UTF_8),
-                  false
-               )
-            );
-      }
-
-      if (!this.user.isDisableEntityMetadataRewrite() && this.user.getSettings() != null) {
-         this.ch.write(this.user.getSettings());
-      }
-
-      if (this.user.getForgeClientHandler().getClientModList() == null && !this.user.getForgeClientHandler().isHandshakeComplete()) {
-         this.user.getForgeClientHandler().setHandshakeComplete();
-      }
-
-      if ((this.user.getServer() != null || this.user.isPassedThroughSpoofedServer()) && var1.getDimension() instanceof Integer) {
-         if (this.user.getServer() != null) {
-            this.user.getServer().setObsolete(true);
-         }
-
-         this.user.getTabListHandler().onServerChange();
-         Scoreboard var11 = this.user.getServerSentScoreboard();
-         if (!this.user.isDisableEntityMetadataRewrite()) {
-            for (Objective var20 : var11.getObjectives()) {
-               this.user
-                  .unsafe()
-                  .sendPacket(
-                     new ScoreboardObjective(
-                        var20.getName(),
-                        var20.getValue(),
-                        var20.getType() == null ? null : ScoreboardObjective.HealthDisplay.fromString(var20.getType()),
-                        (byte)1
-                     )
-                  );
-            }
-
-            for (Score var21 : var11.getScores()) {
-               this.user.unsafe().sendPacket(new ScoreboardScore(var21.getItemName(), (byte)1, var21.getScoreName(), var21.getValue()));
-            }
-
-            for (Team var22 : var11.getTeams()) {
-               this.user.unsafe().sendPacket(new net.md_5.bungee.protocol.packet.Team(var22.getName()));
-            }
-         }
-
-         var11.clear();
-
-         for (UUID var23 : this.user.getSentBossBars()) {
-            this.user.unsafe().sendPacket(new BossBar(var23, 1));
-         }
-
-         this.user.getSentBossBars().clear();
-         this.user.unsafe().sendPacket(new EntityStatus(this.user.getClientEntityId(), (byte)(var1.isReducedDebugInfo() ? 22 : 23)));
-         if (this.user.getPendingConnection().getVersion() >= 573) {
-            this.user.unsafe().sendPacket(new GameState((short)11, var1.isNormalRespawn() ? 0.0F : 1.0F));
-         }
-
-         this.user.setDimensionChange(true);
-         if (!this.user.isDisableEntityMetadataRewrite() && var1.getDimension() == this.user.getDimension()) {
-            this.user
-               .unsafe()
-               .sendPacket(
-                  new Respawn(
-                     var1.getDimension() >= 0 ? -1 : 0,
-                     var1.getWorldName(),
-                     var1.getSeed(),
-                     var1.getDifficulty(),
-                     var1.getGameMode(),
-                     var1.getPreviousGameMode(),
-                     var1.getLevelType(),
-                     var1.isDebug(),
-                     var1.isFlat(),
-                     false,
-                     var1.getDeathLocation()
-                  )
-               );
-         }
-
-         this.user.setServerEntityId(var1.getEntityId());
-         if (this.user.isDisableEntityMetadataRewrite() || this.user.isPassedThroughSpoofedServer()) {
-            this.user.setClientEntityId(var1.getEntityId());
-            if (var1.getDimension() != this.user.getDimension()) {
-               this.user
-                  .unsafe()
-                  .sendPacket(
-                     new Respawn(
-                        var1.getDimension() >= 0 ? -1 : 0,
-                        var1.getWorldName(),
-                        var1.getSeed(),
-                        var1.getDifficulty(),
-                        var1.getGameMode(),
-                        var1.getPreviousGameMode(),
-                        var1.getLevelType(),
-                        var1.isDebug(),
-                        var1.isFlat(),
-                        false,
-                        var1.getDeathLocation()
-                     )
-                  );
-            }
-
-            Login var18 = new Login(
-               var1.getEntityId(),
-               var1.isHardcore(),
-               var1.getGameMode(),
-               var1.getPreviousGameMode(),
-               var1.getWorldNames(),
-               var1.getDimensions(),
-               var1.getDimension(),
-               var1.getWorldName(),
-               var1.getSeed(),
-               var1.getDifficulty(),
-               (byte)this.user.getPendingConnection().getListener().getTabListSize(),
-               var1.getLevelType(),
-               var1.getViewDistance(),
-               var1.getSimulationDistance(),
-               var1.isReducedDebugInfo(),
-               var1.isNormalRespawn(),
-               var1.isDebug(),
-               var1.isFlat(),
-               var1.getDeathLocation()
-            );
-            this.user.unsafe().sendPacket(var18);
-            if (var1.getDimension() == this.user.getDimension()) {
-               this.user
-                  .unsafe()
-                  .sendPacket(
-                     new Respawn(
-                        var1.getDimension() >= 0 ? -1 : 0,
-                        var1.getWorldName(),
-                        var1.getSeed(),
-                        var1.getDifficulty(),
-                        var1.getGameMode(),
-                        var1.getPreviousGameMode(),
-                        var1.getLevelType(),
-                        var1.isDebug(),
-                        var1.isFlat(),
-                        false,
-                        var1.getDeathLocation()
-                     )
-                  );
-            }
-         }
-
-         this.user
-            .unsafe()
-            .sendPacket(
-               new Respawn(
-                  var1.getDimension(),
-                  var1.getWorldName(),
-                  var1.getSeed(),
-                  var1.getDifficulty(),
-                  var1.getGameMode(),
-                  var1.getPreviousGameMode(),
-                  var1.getLevelType(),
-                  var1.isDebug(),
-                  var1.isFlat(),
-                  false,
-                  var1.getDeathLocation()
-               )
-            );
-         if (this.user.getPendingConnection().getVersion() >= 477) {
-            this.user.unsafe().sendPacket(new ViewDistance(var1.getViewDistance()));
-         }
-
-         this.user.setDimension(var1.getDimension());
-         if (this.user.getServer() != null) {
-            this.user.getServer().disconnect("Quitting");
-         }
-      } else {
-         this.user.setClientEntityId(var1.getEntityId());
-         this.user.setServerEntityId(var1.getEntityId());
-         Login var7 = new Login(
-            var1.getEntityId(),
-            var1.isHardcore(),
-            var1.getGameMode(),
-            var1.getPreviousGameMode(),
-            var1.getWorldNames(),
-            var1.getDimensions(),
-            var1.getDimension(),
-            var1.getWorldName(),
-            var1.getSeed(),
-            var1.getDifficulty(),
-            (byte)this.user.getPendingConnection().getListener().getTabListSize(),
-            var1.getLevelType(),
-            var1.getViewDistance(),
-            var1.getSimulationDistance(),
-            var1.isReducedDebugInfo(),
-            var1.isNormalRespawn(),
-            var1.isDebug(),
-            var1.isFlat(),
-            var1.getDeathLocation()
-         );
-         this.user.unsafe().sendPacket(var7);
-         if (this.user.getServer() == null && !this.user.isPassedThroughSpoofedServer()) {
-            String var13 = this.bungee.getName() + " (" + this.bungee.getVersion() + ")";
-            if (ProtocolConstants.isBeforeOrEq(this.user.getPendingConnection().getVersion(), 5)) {
-               this.user.unsafe().sendPacket(new PluginMessage("MC|Brand", var13.getBytes(StandardCharsets.UTF_8), this.handshakeHandler.isServerForge()));
+    @Override
+    public void exception(Throwable throwable) throws Exception {
+        if (!this.obsolete) {
+            String message = "Exception Connecting:" + Util.exception(throwable);
+            if (this.user.getServer() == null) {
+                this.user.disconnect(message);
             } else {
-               ByteBuf var19 = ByteBufAllocator.DEFAULT.heapBuffer();
-               DefinedPacket.writeString(var13, var19);
-               this.user
-                  .unsafe()
-                  .sendPacket(
-                     new PluginMessage(
-                        this.user.getPendingConnection().getVersion() >= 393 ? "minecraft:brand" : "MC|Brand", var19, this.handshakeHandler.isServerForge()
-                     )
-                  );
-               var19.release();
+                this.user.sendMessage(ChatColor.RED + message);
             }
-         } else {
+        }
+    }
+
+    @Override
+    public void connected(ChannelWrapper channel) throws Exception {
+        this.ch = channel;
+        this.handshakeHandler = new ForgeServerHandler(this.user, this.ch, this.target);
+        Handshake handshake = this.user.getPendingConnection().getHandshake();
+        Handshake newHandshake = new Handshake(handshake.getProtocolVersion(), handshake.getHost(), handshake.getPort(), 2);
+        if (BungeeCord.getInstance().config.isIpForward() && this.user.getSocketAddress() instanceof InetSocketAddress) {
+            String host = newHandshake.getHost() + "\u0000" + AddressUtil.sanitizeAddress(this.user.getAddress()) + "\u0000" + this.user.getUUID();
+            LoginResult loginProfile = this.user.getPendingConnection().getLoginProfile();
+            Property[] properties = new Property[0];
+            if (loginProfile != null && loginProfile.getProperties() != null && loginProfile.getProperties().length > 0) {
+                properties = loginProfile.getProperties();
+            }
+
+            if ((!XCord.getConfig().getFixesFix17KickWhen18Joins() || this.user.getPendingConnection().getVersion() > 47)
+                    && this.user.getForgeClientHandler().isFmlTokenInHandshake()) {
+                Property[] extendedProperties = Arrays.copyOf(properties, properties.length + 2);
+                extendedProperties[extendedProperties.length - 2] = new Property("forgeClient", "true", null);
+                extendedProperties[extendedProperties.length - 1] =
+                        new Property("extraData", this.user.getExtraDataInHandshake().replaceAll("\u0000", "\u0001"), "");
+                properties = extendedProperties;
+            }
+
+            if (properties.length > 0) {
+                host = host + "\u0000" + BungeeCord.getInstance().gson.toJson(properties);
+            }
+
+            Log4jFilter.filter(host);
+            newHandshake.setHost(host);
+        } else if (!this.user.getExtraDataInHandshake().isEmpty()) {
+            newHandshake.setHost(newHandshake.getHost() + this.user.getExtraDataInHandshake());
+        }
+
+        channel.write(newHandshake);
+        channel.setProtocol(Protocol.LOGIN);
+        channel.write(new LoginRequest(this.user.getName(), null, this.user.getUniqueId()));
+    }
+
+    @Override
+    public void disconnected(ChannelWrapper channel) throws Exception {
+        this.user.getPendingConnects().remove(this.target);
+    }
+
+    @Override
+    public void handle(PacketWrapper packet) throws Exception {
+    }
+
+    @Override
+    public void handle(LoginSuccess loginSuccess) throws Exception {
+        Preconditions.checkState(this.thisState == ServerConnector.State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS");
+        this.ch.setProtocol(Protocol.GAME);
+        this.thisState = ServerConnector.State.LOGIN;
+        if ((this.user.getServer() != null || this.user.isPassedThroughSpoofedServer())
+                && this.user.getForgeClientHandler().isHandshakeComplete()
+                && this.user.getServer().isForgeServer()) {
+            this.user.getForgeClientHandler().resetHandshake();
+        }
+
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(SetCompression setCompression) throws Exception {
+        this.ch.setCompressionThreshold(setCompression.getThreshold());
+    }
+
+    @Override
+    public void handle(Login login) throws Exception {
+        Preconditions.checkState(this.thisState == ServerConnector.State.LOGIN, "Not expecting LOGIN");
+        if (this.user.isJoinRequiresRewrite()) {
+            this.user.setEntityRewrite(EntityMap.getEntityMap(this.user.getPendingConnection().getVersion(), true));
+        }
+
+        ServerConnection serverConnection = new ServerConnection(this.ch, this.target);
+        ServerConnectedEvent serverConnectedEvent = new ServerConnectedEvent(this.user, serverConnection);
+        if (serverConnection.isForgeServer() && this.user.isForgeUser()) {
+            ((MinecraftDecoder) serverConnection.getCh().getHandle().pipeline().get("packet-decoder")).setSupportsForge(true);
+            ((MinecraftDecoder) this.user.getCh().getHandle().pipeline().get("packet-decoder")).setSupportsForge(true);
+        }
+
+        this.bungee.getPluginManager().callEvent(serverConnectedEvent);
+        this.ch.write(BungeeCord.getInstance().registerChannels(this.user.getPendingConnection().getVersion()));
+        Queue<DefinedPacket> packetQueue = this.target.getPacketQueue();
+        synchronized (packetQueue) {
+            while (!packetQueue.isEmpty()) {
+                this.ch.write(packetQueue.poll());
+            }
+        }
+
+        PluginMessage brandMessage = this.user.getPendingConnection().getBrandMessage();
+        if (brandMessage != null) {
+            this.ch.write(brandMessage);
+        }
+
+        Set<String> registeredChannels = this.user.getPendingConnection().getRegisteredChannels();
+        if (!registeredChannels.isEmpty()) {
+            this.ch.write(
+                    new PluginMessage(
+                            this.user.getPendingConnection().getVersion() >= 393 ? "minecraft:register" : "REGISTER",
+                            Joiner.on("\u0000").join(registeredChannels).getBytes(StandardCharsets.UTF_8),
+                            false
+                    )
+            );
+        }
+
+        if (!this.user.isDisableEntityMetadataRewrite() && this.user.getSettings() != null) {
+            this.ch.write(this.user.getSettings());
+        }
+
+        if (this.user.getForgeClientHandler().getClientModList() == null && !this.user.getForgeClientHandler().isHandshakeComplete()) {
+            this.user.getForgeClientHandler().setHandshakeComplete();
+        }
+
+        if ((this.user.getServer() != null || this.user.isPassedThroughSpoofedServer()) && login.getDimension() instanceof Integer) {
             if (this.user.getServer() != null) {
-               this.user.getServer().setObsolete(true);
-               this.user.getTabListHandler().onServerChange();
-               this.user.getServerSentScoreboard().clear();
-
-               for (UUID var9 : this.user.getSentBossBars()) {
-                  this.user.unsafe().sendPacket(new BossBar(var9, 1));
-               }
-
-               this.user.getSentBossBars().clear();
+                this.user.getServer().setObsolete(true);
             }
 
-            this.user
-               .unsafe()
-               .sendPacket(
-                  new Respawn(
-                     var1.getDimension(),
-                     var1.getWorldName(),
-                     var1.getSeed(),
-                     var1.getDifficulty(),
-                     var1.getGameMode(),
-                     var1.getPreviousGameMode(),
-                     var1.getLevelType(),
-                     var1.isDebug(),
-                     var1.isFlat(),
-                     false,
-                     var1.getDeathLocation()
-                  )
-               );
+            this.user.getTabListHandler().onServerChange();
+            Scoreboard scoreboard = this.user.getServerSentScoreboard();
+            if (!this.user.isDisableEntityMetadataRewrite()) {
+                for (Objective objective : scoreboard.getObjectives()) {
+                    this.user.unsafe().sendPacket(
+                            new ScoreboardObjective(
+                                    objective.getName(),
+                                    objective.getValue(),
+                                    objective.getType() == null ? null : ScoreboardObjective.HealthDisplay.fromString(objective.getType()),
+                                    (byte) 1
+                            )
+                    );
+                }
+
+                for (Score score : scoreboard.getScores()) {
+                    this.user.unsafe().sendPacket(new ScoreboardScore(score.getItemName(), (byte) 1, score.getScoreName(), score.getValue()));
+                }
+
+                for (Team team : scoreboard.getTeams()) {
+                    this.user.unsafe().sendPacket(new net.md_5.bungee.protocol.packet.Team(team.getName()));
+                }
+            }
+
+            scoreboard.clear();
+
+            for (UUID bossBar : this.user.getSentBossBars()) {
+                this.user.unsafe().sendPacket(new BossBar(bossBar, 1));
+            }
+
+            this.user.getSentBossBars().clear();
+            this.user.unsafe().sendPacket(new EntityStatus(this.user.getClientEntityId(), (byte) (login.isReducedDebugInfo() ? 22 : 23)));
+            if (this.user.getPendingConnection().getVersion() >= 573) {
+                this.user.unsafe().sendPacket(new GameState((short) 11, login.isNormalRespawn() ? 0.0F : 1.0F));
+            }
+
+            this.user.setDimensionChange(true);
+            if (!this.user.isDisableEntityMetadataRewrite() && login.getDimension() == this.user.getDimension()) {
+                this.user.unsafe().sendPacket(
+                        new Respawn(
+                                ((Number) login.getDimension()).intValue() >= 0 ? -1 : 0,
+                                login.getWorldName(),
+                                login.getSeed(),
+                                login.getDifficulty(),
+                                login.getGameMode(),
+                                login.getPreviousGameMode(),
+                                login.getLevelType(),
+                                login.isDebug(),
+                                login.isFlat(),
+                                false,
+                                login.getDeathLocation()
+                        )
+                );
+            }
+
+            this.user.setServerEntityId(login.getEntityId());
+            if (this.user.isDisableEntityMetadataRewrite() || this.user.isPassedThroughSpoofedServer()) {
+                this.user.setClientEntityId(login.getEntityId());
+                if (login.getDimension() != this.user.getDimension()) {
+                    this.user.unsafe().sendPacket(
+                            new Respawn(
+                                    ((Number) login.getDimension()).intValue() >= 0 ? -1 : 0,
+                                    login.getWorldName(),
+                                    login.getSeed(),
+                                    login.getDifficulty(),
+                                    login.getGameMode(),
+                                    login.getPreviousGameMode(),
+                                    login.getLevelType(),
+                                    login.isDebug(),
+                                    login.isFlat(),
+                                    false,
+                                    login.getDeathLocation()
+                            )
+                    );
+                }
+
+                Login loginPacket = new Login(
+                        login.getEntityId(),
+                        login.isHardcore(),
+                        login.getGameMode(),
+                        login.getPreviousGameMode(),
+                        login.getWorldNames(),
+                        login.getDimensions(),
+                        login.getDimension(),
+                        login.getWorldName(),
+                        login.getSeed(),
+                        login.getDifficulty(),
+                        (byte) this.user.getPendingConnection().getListener().getTabListSize(),
+                        login.getLevelType(),
+                        login.getViewDistance(),
+                        login.getSimulationDistance(),
+                        login.isReducedDebugInfo(),
+                        login.isNormalRespawn(),
+                        login.isDebug(),
+                        login.isFlat(),
+                        login.getDeathLocation()
+                );
+                this.user.unsafe().sendPacket(loginPacket);
+                if (login.getDimension() == this.user.getDimension()) {
+                    this.user.unsafe().sendPacket(
+                            new Respawn(
+                                    ((Number) login.getDimension()).intValue() >= 0 ? -1 : 0,
+                                    login.getWorldName(),
+                                    login.getSeed(),
+                                    login.getDifficulty(),
+                                    login.getGameMode(),
+                                    login.getPreviousGameMode(),
+                                    login.getLevelType(),
+                                    login.isDebug(),
+                                    login.isFlat(),
+                                    false,
+                                    login.getDeathLocation()
+                            )
+                    );
+                }
+            }
+
+            this.user.unsafe().sendPacket(
+                    new Respawn(
+                            login.getDimension(),
+                            login.getWorldName(),
+                            login.getSeed(),
+                            login.getDifficulty(),
+                            login.getGameMode(),
+                            login.getPreviousGameMode(),
+                            login.getLevelType(),
+                            login.isDebug(),
+                            login.isFlat(),
+                            false,
+                            login.getDeathLocation()
+                    )
+            );
+            if (this.user.getPendingConnection().getVersion() >= 477) {
+                this.user.unsafe().sendPacket(new ViewDistance(login.getViewDistance()));
+            }
+
+            this.user.setDimension(login.getDimension());
             if (this.user.getServer() != null) {
-               this.user.getServer().disconnect("Quitting");
+                this.user.getServer().disconnect("Quitting");
             }
-         }
+        } else {
+            this.user.setClientEntityId(login.getEntityId());
+            this.user.setServerEntityId(login.getEntityId());
+            Login loginPacket = new Login(
+                    login.getEntityId(),
+                    login.isHardcore(),
+                    login.getGameMode(),
+                    login.getPreviousGameMode(),
+                    login.getWorldNames(),
+                    login.getDimensions(),
+                    login.getDimension(),
+                    login.getWorldName(),
+                    login.getSeed(),
+                    login.getDifficulty(),
+                    (byte) this.user.getPendingConnection().getListener().getTabListSize(),
+                    login.getLevelType(),
+                    login.getViewDistance(),
+                    login.getSimulationDistance(),
+                    login.isReducedDebugInfo(),
+                    login.isNormalRespawn(),
+                    login.isDebug(),
+                    login.isFlat(),
+                    login.getDeathLocation()
+            );
+            this.user.unsafe().sendPacket(loginPacket);
+            if (this.user.getServer() == null && !this.user.isPassedThroughSpoofedServer()) {
+                String brand = this.bungee.getName() + " (" + this.bungee.getVersion() + ")";
+                if (ProtocolConstants.isBeforeOrEq(this.user.getPendingConnection().getVersion(), 5)) {
+                    this.user.unsafe().sendPacket(new PluginMessage("MC|Brand", brand.getBytes(StandardCharsets.UTF_8), this.handshakeHandler.isServerForge()));
+                } else {
+                    ByteBuf brandBuffer = ByteBufAllocator.DEFAULT.heapBuffer();
+                    DefinedPacket.writeString(brand, brandBuffer);
+                    this.user.unsafe().sendPacket(
+                            new PluginMessage(
+                                    this.user.getPendingConnection().getVersion() >= 393 ? "minecraft:brand" : "MC|Brand",
+                                    brandBuffer,
+                                    this.handshakeHandler.isServerForge()
+                            )
+                    );
+                    brandBuffer.release();
+                }
+            } else {
+                if (this.user.getServer() != null) {
+                    this.user.getServer().setObsolete(true);
+                    this.user.getTabListHandler().onServerChange();
+                    this.user.getServerSentScoreboard().clear();
 
-         this.user.setDimension(var1.getDimension());
-      }
+                    for (UUID bossBar : this.user.getSentBossBars()) {
+                        this.user.unsafe().sendPacket(new BossBar(bossBar, 1));
+                    }
 
-      if (this.user.isJoinRequiresRewrite()) {
-         this.user.setJoinRequiresRewrite(false);
-         this.user.setEntityRewrite(EntityMap_Dummy.INSTANCE);
-      }
+                    this.user.getSentBossBars().clear();
+                }
 
-      if (!this.user.isActive()) {
-         var2.disconnect("Quitting");
-         if (!XCord.isLogFilterEnabled()) {
-            this.bungee.getLogger().warning("No client connected for pending server!");
-         }
-      } else {
-         this.target.addPlayer(this.user);
-         this.user.getPendingConnects().remove(this.target);
-         this.user.setServerJoinQueue(null);
-         this.user.setDimensionChange(false);
-         BungeeServerInfo var12 = this.user.getServer() == null ? null : this.user.getServer().getInfo();
-         this.user.setServer(var2);
-         ((HandlerBoss)this.ch.getHandle().pipeline().get(HandlerBoss.class)).setHandler(new DownstreamBridge(this.bungee, this.user, var2));
-         this.bungee.getPluginManager().callEvent(new ServerSwitchEvent(this.user, var12));
-         this.thisState = ServerConnector.State.FINISHED;
-         throw CancelSendSignal.INSTANCE;
-      }
-   }
-
-   @Override
-   public void handle(EncryptionRequest var1) throws Exception {
-      throw new QuietException("Server is online mode!");
-   }
-
-   @Override
-   public void handle(Kick var1) throws Exception {
-      ServerInfo var2 = this.user.updateAndGetNextServer(this.target);
-      ServerKickEvent var3 = new ServerKickEvent(
-         this.user, this.target, ComponentSerializer.parse(var1.getMessage()), var2, ServerKickEvent.State.CONNECTING, ServerKickEvent.Cause.SERVER
-      );
-      if (var3.getKickReason().toLowerCase(Locale.ROOT).contains("outdated") && var2 != null) {
-         var3.setCancelled(true);
-      }
-
-      if (!this.user.isPassedThroughSpoofedServer()) {
-         this.bungee.getPluginManager().callEvent(var3);
-      }
-
-      if (var3.isCancelled() && var3.getCancelServer() != null) {
-         this.obsolete = true;
-         this.user.connect(var3.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT);
-         throw CancelSendSignal.INSTANCE;
-      } else {
-         String var4 = this.bungee.getTranslation("connect_kick", this.target.getName(), var3.getKickReason());
-         if (this.user.isDimensionChange()) {
-            this.user.disconnect(var4);
-         } else if (!this.user.isPassedThroughSpoofedServer() && this.user.getServer() != null && !(this.user.getServer() instanceof SpoofedServerConnection)) {
-            this.user.sendMessage(var4);
-         } else {
-            this.user.disconnect(var4);
-         }
-
-         throw CancelSendSignal.INSTANCE;
-      }
-   }
-
-   @Override
-   public void handle(PluginMessage var1) throws Exception {
-      if (BungeeCord.getInstance().config.isForgeSupport()) {
-         if (var1.getTag().equals("REGISTER")) {
-            Set var2 = ForgeUtils.readRegisteredChannels(var1);
-            boolean var3 = false;
-            Iterator var4 = var2.iterator();
-
-            while (true) {
-               if (var4.hasNext()) {
-                  String var5 = (String)var4.next();
-                  if (!var5.equals("FML|HS")) {
-                     continue;
-                  }
-
-                  if ((this.user.getServer() != null || this.user.isPassedThroughSpoofedServer()) && this.user.getForgeClientHandler().isHandshakeComplete()) {
-                     this.user.getForgeClientHandler().resetHandshake();
-                  }
-
-                  var3 = true;
-               }
-
-               if (var3 && !this.handshakeHandler.isServerForge()) {
-                  this.handshakeHandler.setServerAsForgeServer();
-                  this.user.setForgeServerHandler(this.handshakeHandler);
-               }
-               break;
-            }
-         }
-
-         if (var1.getTag().equals("FML|HS") || var1.getTag().equals("FORGE")) {
-            this.handshakeHandler.handle(var1);
-            if (this.user.getForgeClientHandler().checkUserOutdated()) {
-               this.ch.close();
-               this.user.getPendingConnects().remove(this.target);
+                this.user.unsafe().sendPacket(
+                        new Respawn(
+                                login.getDimension(),
+                                login.getWorldName(),
+                                login.getSeed(),
+                                login.getDifficulty(),
+                                login.getGameMode(),
+                                login.getPreviousGameMode(),
+                                login.getLevelType(),
+                                login.isDebug(),
+                                login.isFlat(),
+                                false,
+                                login.getDeathLocation()
+                        )
+                );
+                if (this.user.getServer() != null) {
+                    this.user.getServer().disconnect("Quitting");
+                }
             }
 
+            this.user.setDimension(login.getDimension());
+        }
+
+        if (this.user.isJoinRequiresRewrite()) {
+            this.user.setJoinRequiresRewrite(false);
+            this.user.setEntityRewrite(EntityMap_Dummy.INSTANCE);
+        }
+
+        if (!this.user.isActive()) {
+            serverConnection.disconnect("Quitting");
+            if (!XCord.isLogFilterEnabled()) {
+                this.bungee.getLogger().warning("No client connected for pending server!");
+            }
+        } else {
+            this.target.addPlayer(this.user);
+            this.user.getPendingConnects().remove(this.target);
+            this.user.setServerJoinQueue(null);
+            this.user.setDimensionChange(false);
+            BungeeServerInfo previousServer = this.user.getServer() == null ? null : this.user.getServer().getInfo();
+            this.user.setServer(serverConnection);
+            this.ch.getHandle().pipeline().get(HandlerBoss.class)
+                    .setHandler(new DownstreamBridge(this.bungee, this.user, serverConnection));
+            this.bungee.getPluginManager().callEvent(new ServerSwitchEvent(this.user, previousServer));
+            this.thisState = ServerConnector.State.FINISHED;
             throw CancelSendSignal.INSTANCE;
-         }
-      }
+        }
+    }
 
-      this.user.unsafe().sendPacket(var1);
-   }
+    @Override
+    public void handle(EncryptionRequest encryptionRequest) throws Exception {
+        throw new QuietException("Server is online mode!");
+    }
 
-   @Override
-   public String toString() {
-      return "[" + this.user.getName() + "|" + this.user.getAddress() + "] <-> ServerConnector [" + this.target.getName() + "]";
-   }
+    @Override
+    public void handle(Kick kick) throws Exception {
+        ServerInfo nextServer = this.user.updateAndGetNextServer(this.target);
+        ServerKickEvent kickEvent = new ServerKickEvent(
+                this.user,
+                this.target,
+                ComponentSerializer.parse(kick.getMessage()),
+                nextServer,
+                ServerKickEvent.State.CONNECTING,
+                ServerKickEvent.Cause.SERVER
+        );
+        if (kickEvent.getKickReason().toLowerCase(Locale.ROOT).contains("outdated") && nextServer != null) {
+            kickEvent.setCancelled(true);
+        }
 
-   @Override
-   public void handle(LoginPayloadRequest var1) {
-      this.ch.write(new LoginPayloadResponse(var1.getId(), null));
-   }
+        if (!this.user.isPassedThroughSpoofedServer()) {
+            this.bungee.getPluginManager().callEvent(kickEvent);
+        }
 
-   public ServerConnector(ProxyServer var1, UserConnection var2, BungeeServerInfo var3) {
-      this.bungee = var1;
-      this.user = var2;
-      this.target = var3;
-   }
+        if (kickEvent.isCancelled() && kickEvent.getCancelServer() != null) {
+            this.obsolete = true;
+            this.user.connect(kickEvent.getCancelServer(), ServerConnectEvent.Reason.KICK_REDIRECT);
+            throw CancelSendSignal.INSTANCE;
+        }
 
-   public ForgeServerHandler getHandshakeHandler() {
-      return this.handshakeHandler;
-   }
+        String kickReason = this.bungee.getTranslation("connect_kick", this.target.getName(), kickEvent.getKickReason());
+        if (this.user.isDimensionChange()) {
+            this.user.disconnect(kickReason);
+        } else if (!this.user.isPassedThroughSpoofedServer()
+                && this.user.getServer() != null
+                && !(this.user.getServer() instanceof SpoofedServerConnection)) {
+            this.user.sendMessage(kickReason);
+        } else {
+            this.user.disconnect(kickReason);
+        }
 
-   private static enum State {
-      LOGIN_SUCCESS,
-      ENCRYPT_RESPONSE,
-      LOGIN,
-      FINISHED;
-   }
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(PluginMessage pluginMessage) throws Exception {
+        if (BungeeCord.getInstance().config.isForgeSupport()) {
+            if (pluginMessage.getTag().equals("REGISTER")) {
+                Set<String> registeredChannels = ForgeUtils.readRegisteredChannels(pluginMessage);
+                boolean forgeRegistered = false;
+                for (String channel : registeredChannels) {
+                    if (!channel.equals("FML|HS")) {
+                        continue;
+                    }
+
+                    if ((this.user.getServer() != null || this.user.isPassedThroughSpoofedServer())
+                            && this.user.getForgeClientHandler().isHandshakeComplete()) {
+                        this.user.getForgeClientHandler().resetHandshake();
+                    }
+
+                    forgeRegistered = true;
+                    break;
+                }
+
+                if (forgeRegistered && !this.handshakeHandler.isServerForge()) {
+                    this.handshakeHandler.setServerAsForgeServer();
+                    this.user.setForgeServerHandler(this.handshakeHandler);
+                }
+            }
+
+            if (pluginMessage.getTag().equals("FML|HS") || pluginMessage.getTag().equals("FORGE")) {
+                this.handshakeHandler.handle(pluginMessage);
+                if (this.user.getForgeClientHandler().checkUserOutdated()) {
+                    this.ch.close();
+                    this.user.getPendingConnects().remove(this.target);
+                }
+
+                throw CancelSendSignal.INSTANCE;
+            }
+        }
+
+        this.user.unsafe().sendPacket(pluginMessage);
+    }
+
+    @Override
+    public String toString() {
+        return "[" + this.user.getName() + "|" + this.user.getAddress() + "] <-> ServerConnector [" + this.target.getName() + "]";
+    }
+
+    @Override
+    public void handle(LoginPayloadRequest loginPayloadRequest) {
+        this.ch.write(new LoginPayloadResponse(loginPayloadRequest.getId(), null));
+    }
+
+    public ServerConnector(ProxyServer bungee, UserConnection user, BungeeServerInfo target) {
+        this.bungee = bungee;
+        this.user = user;
+        this.target = target;
+    }
+
+    public ForgeServerHandler getHandshakeHandler() {
+        return this.handshakeHandler;
+    }
+
+    private static enum State {
+        LOGIN_SUCCESS,
+        ENCRYPT_RESPONSE,
+        LOGIN,
+        FINISHED;
+    }
 }

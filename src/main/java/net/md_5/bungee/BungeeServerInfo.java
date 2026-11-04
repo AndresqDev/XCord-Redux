@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Preconditions;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
@@ -25,174 +26,176 @@ import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PipelineUtils;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
-import xcord.DnsResolver;
 import xcord.XCord;
+import xcord.network.DnsResolver;
 
 public class BungeeServerInfo implements ServerInfo {
-   private final String name;
-   private final SocketAddress socketAddress;
-   private final Collection<ProxiedPlayer> players = new ArrayList<>();
-   private final String motd;
-   private final boolean restricted;
-   private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
-   private long lastPing;
-   private ServerPing cachedPing;
+    private final String name;
+    private final SocketAddress socketAddress;
+    private final Collection<ProxiedPlayer> players = new ArrayList<>();
+    private final String motd;
+    private final boolean restricted;
+    private final Queue<DefinedPacket> packetQueue = new LinkedList<>();
+    private long lastPing;
+    private ServerPing cachedPing;
 
-   public void addPlayer(ProxiedPlayer var1) {
-      synchronized (this.players) {
-         this.players.add(var1);
-      }
-   }
+    public void addPlayer(ProxiedPlayer player) {
+        synchronized (this.players) {
+            this.players.add(player);
+        }
+    }
 
-   public void removePlayer(ProxiedPlayer var1) {
-      synchronized (this.players) {
-         this.players.remove(var1);
-      }
-   }
+    public void removePlayer(ProxiedPlayer player) {
+        synchronized (this.players) {
+            this.players.remove(player);
+        }
+    }
 
-   @Override
-   public Collection<ProxiedPlayer> getPlayers() {
-      synchronized (this.players) {
-         return Collections.unmodifiableCollection(new HashSet<>(this.players));
-      }
-   }
+    @Override
+    public Collection<ProxiedPlayer> getPlayers() {
+        synchronized (this.players) {
+            return Collections.unmodifiableCollection(new HashSet<>(this.players));
+        }
+    }
 
-   @Override
-   public String getPermission() {
-      return "bungeecord.server." + this.name;
-   }
+    @Override
+    public String getPermission() {
+        return "bungeecord.server." + this.name;
+    }
 
-   @Override
-   public boolean canAccess(CommandSender var1) {
-      Preconditions.checkNotNull(var1, "player");
-      return !this.restricted || var1.hasPermission(this.getPermission());
-   }
+    @Override
+    public boolean canAccess(CommandSender sender) {
+        Preconditions.checkNotNull(sender, "player");
+        return !this.restricted || sender.hasPermission(this.getPermission());
+    }
 
-   @Override
-   public boolean equals(Object var1) {
-      return var1 instanceof ServerInfo && Objects.equals(this.getAddress(), ((ServerInfo)var1).getAddress());
-   }
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof ServerInfo && Objects.equals(this.getAddress(), ((ServerInfo) other).getAddress());
+    }
 
-   @Override
-   public int hashCode() {
-      return this.socketAddress.hashCode();
-   }
+    @Override
+    public int hashCode() {
+        return this.socketAddress.hashCode();
+    }
 
-   @Override
-   public void sendData(String var1, byte[] var2) {
-      this.sendData(var1, var2, true);
-   }
+    @Override
+    public void sendData(String channel, byte[] data) {
+        this.sendData(channel, data, true);
+    }
 
-   @Override
-   public boolean sendData(String var1, byte[] var2, boolean var3) {
-      Preconditions.checkNotNull(var1, "channel");
-      Preconditions.checkNotNull(var2, "data");
-      Server var4;
-      synchronized (this.players) {
-         var4 = this.players.isEmpty() ? null : this.players.iterator().next().getServer();
-      }
+    @Override
+    public boolean sendData(String channel, byte[] data, boolean queue) {
+        Preconditions.checkNotNull(channel, "channel");
+        Preconditions.checkNotNull(data, "data");
+        Server server;
+        synchronized (this.players) {
+            server = this.players.isEmpty() ? null : this.players.iterator().next().getServer();
+        }
 
-      if (var4 != null) {
-         var4.sendData(var1, var2);
-         return true;
-      } else {
-         if (var3) {
+        if (server != null) {
+            server.sendData(channel, data);
+            return true;
+        }
+
+        if (queue) {
             synchronized (this.packetQueue) {
-               this.packetQueue.add(new PluginMessage(var1, var2, false));
+                this.packetQueue.add(new PluginMessage(channel, data, false));
             }
-         }
+        }
 
-         return false;
-      }
-   }
+        return false;
+    }
 
-   public void cachePing(ServerPing var1) {
-      if (ProxyServer.getInstance().getConfig().getRemotePingCache() > 0) {
-         this.cachedPing = var1;
-         this.lastPing = System.currentTimeMillis();
-      }
-   }
+    public void cachePing(ServerPing ping) {
+        if (ProxyServer.getInstance().getConfig().getRemotePingCache() > 0) {
+            this.cachedPing = ping;
+            this.lastPing = System.currentTimeMillis();
+        }
+    }
 
-   @Override
-   public InetSocketAddress getAddress() {
-      return (InetSocketAddress)this.socketAddress;
-   }
+    @Override
+    public InetSocketAddress getAddress() {
+        return (InetSocketAddress) this.socketAddress;
+    }
 
-   @Override
-   public void ping(Callback<ServerPing> var1) {
-      this.ping(var1, ProxyServer.getInstance().getProtocolVersion());
-   }
+    @Override
+    public void ping(Callback<ServerPing> callback) {
+        this.ping(callback, ProxyServer.getInstance().getProtocolVersion());
+    }
 
-   public void ping(final Callback<ServerPing> var1, final int var2) {
-      Preconditions.checkNotNull(var1, "callback");
-      int var3 = ProxyServer.getInstance().getConfig().getRemotePingCache();
-      if (var3 > 0 && this.cachedPing != null && System.currentTimeMillis() - this.lastPing > (long)var3) {
-         this.cachedPing = null;
-      }
+    public void ping(final Callback<ServerPing> callback, final int protocolVersion) {
+        Preconditions.checkNotNull(callback, "callback");
+        int cacheTime = ProxyServer.getInstance().getConfig().getRemotePingCache();
+        if (cacheTime > 0 && this.cachedPing != null && System.currentTimeMillis() - this.lastPing > (long) cacheTime) {
+            this.cachedPing = null;
+        }
 
-      if (this.cachedPing != null) {
-         var1.done(this.cachedPing, null);
-      } else {
-         ChannelFutureListener var4 = new ChannelFutureListener() {
-            public void operationComplete(ChannelFuture var1x) throws Exception {
-               if (var1x.isSuccess()) {
-                  ((HandlerBoss)var1x.channel().pipeline().get(HandlerBoss.class)).setHandler(new PingHandler(BungeeServerInfo.this, var1, var2));
-               } else {
-                  var1.done(null, var1x.cause());
-               }
+        if (this.cachedPing != null) {
+            callback.done(this.cachedPing, null);
+            return;
+        }
+
+        ChannelFutureListener listener = new ChannelFutureListener() {
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    future.channel().pipeline().get(HandlerBoss.class)
+                            .setHandler(new PingHandler(BungeeServerInfo.this, callback, protocolVersion));
+                } else {
+                    callback.done(null, future.cause());
+                }
             }
-         };
-         io.netty.bootstrap.Bootstrap var5 = ((io.netty.bootstrap.Bootstrap)((io.netty.bootstrap.Bootstrap)((io.netty.bootstrap.Bootstrap)((io.netty.bootstrap.Bootstrap)new io.netty.bootstrap.Bootstrap()
-                        .channel(PipelineUtils.getChannel(this.socketAddress)))
-                     .group(BungeeCord.getInstance().workerEventLoopGroup))
-                  .handler(PipelineUtils.BASE))
-               .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getRemotePingTimeout()))
-            .remoteAddress(this.socketAddress);
-         if (this.socketAddress instanceof InetSocketAddress && ((InetSocketAddress)this.socketAddress).isUnresolved()) {
-            var5.resolver(DnsResolver.getResolverGroup());
-         }
+        };
+        Bootstrap bootstrap = new Bootstrap()
+                .channel(PipelineUtils.getChannel(this.socketAddress))
+                .group(BungeeCord.getInstance().workerEventLoopGroup)
+                .handler(PipelineUtils.BASE)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getRemotePingTimeout())
+                .remoteAddress(this.socketAddress);
+        if (this.socketAddress instanceof InetSocketAddress && ((InetSocketAddress) this.socketAddress).isUnresolved()) {
+            bootstrap.resolver(DnsResolver.getResolverGroup());
+        }
 
-         if (XCord.getConfig().getPerformanceOptimizationsUseTcpFastOpenOnServers() && PipelineUtils.usingEpoll()) {
-            var5.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
-         }
+        if (XCord.getConfig().getPerformanceOptimizationsUseTcpFastOpenOnServers() && PipelineUtils.usingEpoll()) {
+            bootstrap.option(ChannelOption.TCP_FASTOPEN_CONNECT, true);
+        }
 
-         var5.connect().addListener(var4);
-      }
-   }
+        bootstrap.connect().addListener(listener);
+    }
 
-   public BungeeServerInfo(String var1, SocketAddress var2, String var3, boolean var4) {
-      this.name = var1;
-      this.socketAddress = var2;
-      this.motd = var3;
-      this.restricted = var4;
-   }
+    public BungeeServerInfo(String name, SocketAddress socketAddress, String motd, boolean restricted) {
+        this.name = name;
+        this.socketAddress = socketAddress;
+        this.motd = motd;
+        this.restricted = restricted;
+    }
 
-   @Override
-   public String toString() {
-      return "BungeeServerInfo(name=" + this.getName() + ", socketAddress=" + this.getSocketAddress() + ", restricted=" + this.isRestricted() + ")";
-   }
+    @Override
+    public String toString() {
+        return "BungeeServerInfo(name=" + this.getName() + ", socketAddress=" + this.getSocketAddress() + ", restricted=" + this.isRestricted() + ")";
+    }
 
-   @Override
-   public String getName() {
-      return this.name;
-   }
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-   @Override
-   public SocketAddress getSocketAddress() {
-      return this.socketAddress;
-   }
+    @Override
+    public SocketAddress getSocketAddress() {
+        return this.socketAddress;
+    }
 
-   @Override
-   public String getMotd() {
-      return this.motd;
-   }
+    @Override
+    public String getMotd() {
+        return this.motd;
+    }
 
-   @Override
-   public boolean isRestricted() {
-      return this.restricted;
-   }
+    @Override
+    public boolean isRestricted() {
+        return this.restricted;
+    }
 
-   public Queue<DefinedPacket> getPacketQueue() {
-      return this.packetQueue;
-   }
+    public Queue<DefinedPacket> getPacketQueue() {
+        return this.packetQueue;
+    }
 }

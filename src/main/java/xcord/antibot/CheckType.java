@@ -1,0 +1,13 @@
+package xcord.antibot;
+
+public enum CheckType {
+    VERIFY,
+    SPEEDY_LOGIN,
+    SPEEDY_CONNECTION,
+    LOGIN_TIMEOUT,
+    PACKET_TIMEOUT,
+    UNSTABLE_CONNECTION,
+    STRANGE_NAME,
+    NAME_PATTERN,
+    TIMEOUT_FLOOD
+}
