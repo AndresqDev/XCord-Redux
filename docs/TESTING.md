@@ -1,7 +1,8 @@
 # Testing
 
-The reconstruction was tested against a local Spigot 1.8.8 backend. Clients used
-protocol 47 (Minecraft 1.8.9). The proxy ran on `127.0.0.1:25577` and the backend
+The XCord 1.56 reconstruction was tested against a local Spigot 1.8.8 backend.
+The decompilation and deobfuscation workflow was only tested on XCord 1.56.
+Clients used protocol 47 (Minecraft 1.8.9). The proxy ran on `127.0.0.1:25577` and the backend
 on `127.0.0.1:25565`.
 
 Test clients:

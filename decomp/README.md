@@ -1,7 +1,10 @@
 # Decompilation Tools
 
-This directory contains the tools used to reconstruct the jar. The source in
-`decomp/remap/RemapJar.java` is kept comment-free; usage is documented here.
+This directory contains the tools used to reconstruct the XCord 1.56 jar.
+The workflow below was only tested and validated against XCord 1.56.
+
+The source in `decomp/remap/RemapJar.java` is kept comment-free; usage is
+documented here.
 
 ## Layout
 

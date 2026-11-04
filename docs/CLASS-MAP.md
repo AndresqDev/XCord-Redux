@@ -1,5 +1,8 @@
 # Class Map
 
+This map applies to the reconstruction of **XCord 1.56**. The decompilation and
+deobfuscation process was only tested and validated on version 1.56.
+
 The reconstruction renames 86 classes, 362 fields, and 371 methods. Inner
 classes retain their outer class mapping.
 

@@ -2,8 +2,9 @@
 
 ## Source of this tree
 
-This repository is a reconstruction of a third-party XCord jar supplied for
-review. The process is:
+This repository is a reconstruction of the third-party **XCord 1.56** jar
+supplied for review. The decompilation and deobfuscation workflow documented
+here was only tested and validated against XCord 1.56. The process is:
 
 1. Inventory the jar and identify obfuscated application classes.
 2. Generate a class, field, and method mapping.

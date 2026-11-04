@@ -4,9 +4,14 @@
 
 (The acronym is not exact, but I liked how it fit together. d:)
 
-XCord Redux is a readable Java reconstruction of the XCord proxy jar, a
-Travertine/BungeeCord 1.19 fork. The obfuscated application classes were
-remapped, decompiled, reviewed, and rebuilt from source.
+XCord Redux is a readable Java reconstruction of the **XCord 1.56** proxy jar,
+a Travertine/BungeeCord 1.19 fork.
+
+> **Version scope:** this source code is from XCord 1.56. The decompilation and
+> deobfuscation process was only tested and validated on version 1.56.
+
+The obfuscated application classes were remapped, decompiled, reviewed, and
+rebuilt from source.
 
 The `main` branch contains the refactored source organized by domain. The
 `unpolished-production-code` branch preserves the working reconstruction that
